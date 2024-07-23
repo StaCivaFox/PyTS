@@ -6,18 +6,22 @@ import pymysql
 #     sql = "DROP TABLE IF EXISTS `{}`.`{}`;".format(schema_name,table_name)
 #     cursor.execute(sql)  
   
-# def create_table(cursor, schema_name, table_name):  # 建立存储内容表
-#     cursor.execute(f"""  
-#     CREATE TABLE `{schema_name}`.`{table_name}` (  
-#         'id' INT NOT NULL,
-#         'title' VARCHAR(100) NOT NULL,
-#         `priority` INT NOT NULL,
-#         `deadline` DATETIME NOT NULL,
-#         `description` TEXT NOT NULL,
-#         `1col` VARCHAR(45) NOT NULL); 
-#         PRIMARY KEY (`id`)  
-#     );  
-#     """) 
+def create_table(table_name):  # 建立个人存储内容表
+    conn,cursor = make_connect()
+    sql = """  
+    CREATE TABLE `log_info`.`{}` (  
+        `id` INT NOT NULL AUTO_INCREMENT,
+        `title` VARCHAR(45) NOT NULL,
+        `priority` INT NOT NULL,
+        `deadline` DATETIME NOT NULL,
+        `description` TEXT NOT NULL,
+        `state` INT NOT NULL,
+        PRIMARY KEY(`id`)
+    );  
+    """.format(table_name)
+    cursor.execute(sql) 
+    conn.commit()
+    break_connect(conn,cursor) # 关闭游标和连接  
 
 def make_connect():     # 建立数据库连接
     conn = pymysql.connect(
@@ -37,15 +41,12 @@ def break_connect(conn,cursor): # 断开数据库连接
     cursor.close()
     conn.close()
 
-def add_person():   # 注册模块
+def add_person(name,password,password2):   # 注册模块
     conn,cursor = make_connect()
-    name = input('输入学号')
     sql = "SELECT * FROM login where name = '{}'".format(name)
     cursor.execute(sql)
     result = cursor.fetchall() # 获取查询结果，返回元组
     if len(result) == 0:
-        password = input('输入密码')
-        password2 = input('再次输入密码')
         if password == password2:
             sql = "INSERT INTO login (name, password) VALUES ('{}', '{}')".format(name,password)
             cursor.execute(sql)
@@ -56,32 +57,33 @@ def add_person():   # 注册模块
         print('账号已注册')
     break_connect(conn,cursor) # 关闭游标和连接  
 
-def judge_person():     #身份验证模块
+def judge_person(name,password):     #身份验证模块
     conn,cursor = make_connect()
-    name = input('输入学号')
     sql = "SELECT * FROM login where name = '{}'".format(name)  
     cursor.execute(sql) # 执行查询操作
     result = cursor.fetchall() # 获取查询结果，返回元组
     if len(result) == 0:
         print('None')
+        break_connect(conn,cursor) # 关闭游标和连接
+        return False
     else:
-        password = input("输入密码")
         if result[0][2] == password:
             print("Yes")
+            break_connect(conn,cursor) # 关闭游标和连接
+            return True
         else:
             print("No")
-    break_connect(conn,cursor) # 关闭游标和连接  
+            break_connect(conn,cursor) # 关闭游标和连接
+            return False  
 
-def delete_person():    #注销模块
+def delete_person(name,password):    #注销模块
     conn,cursor = make_connect()
-    name = input('输入学号')
     sql = "SELECT * FROM login where name = '{}'".format(name)  
     cursor.execute(sql) # 执行查询操作
     result = cursor.fetchall() # 获取查询结果，返回元组
     if len(result) == 0:
         print('None')
     else:
-        password = input("输入密码")
         if result[0][2] == password:
             sql = "DELETE FROM login where name = '{}'".format(name)
             yes = input("你确定要注销？Yes or No")
@@ -108,13 +110,26 @@ if __name__ == '__main__':
     f = int(input()) # 操作数1\2\3\4
 
     if f == 1: 
-        add_person()
+        name = input('输入学号')
+        password = input('输入密码')
+        password2 = input('再次输入密码')
+        add_person(name,password,password2)
 
     elif f == 2: 
-        judge_person() 
+        name = input('输入学号')
+        password = input("输入密码")
+        judge_person(name,password) 
 
     elif f == 3: 
-        delete_person()
+        name = input('输入学号')
+        password = input("输入密码")
+        delete_person(name,password)
         
     elif f == 4: 
         scan_all_table()    
+
+    elif f == 5:
+        name = input('输入学号')
+        password = input("输入密码")
+        if judge_person(name,password):
+            create_table(name)
