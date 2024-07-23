@@ -37,7 +37,7 @@ def break_connect(conn,cursor): # 断开数据库连接
     cursor.close()
     conn.close()
 
-def add_person():   # 注册模块
+def add_person(name, password):   # 注册模块
     conn,cursor = make_connect()
     name = input('输入学号')
     sql = "SELECT * FROM login where name = '{}'".format(name)

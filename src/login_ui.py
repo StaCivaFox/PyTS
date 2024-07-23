@@ -26,7 +26,7 @@ class LoginUI(QMainWindow):
         self.login_button.clicked.connect(self.login)
 
         self.signup_button = QPushButton("Sign Up")
-        self.signup_button.clicked.connect(self.signup)
+        self.signup_button.clicked.connect(self.signup_window)
 
         self.layout.addWidget(self.username_label)
         self.layout.addWidget(self.username_input)
@@ -58,7 +58,8 @@ class LoginUI(QMainWindow):
             self.password_input.clear()
         #print("Login button clicked")
 
-    def signup(self):
+    def signup_window(self):
+
         print("Sign Up button clicked")
 
 if __name__ == "__main__":
