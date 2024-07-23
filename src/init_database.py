@@ -1,0 +1,38 @@
+# 数据库自动化生成文件
+import pymysql  
+  
+def create_schema_if_not_exists(cursor, schema_name):  
+    cursor.execute(f"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{schema_name}';")  
+    if cursor.fetchone() is None:  
+        cursor.execute(f"CREATE SCHEMA `{schema_name}`;")  
+  
+def drop_table_if_exists(cursor, schema_name, table_name):  
+    # 注意：这里我们需要指定数据库名，因为 DROP TABLE 需要知道在哪个数据库中删除表  
+    # 假设我们已经在 'log_info' 数据库中工作  
+    sql = "DROP TABLE IF EXISTS `{}`.`{}`;".format(schema_name,table_name)
+    cursor.execute(sql)  
+  
+def create_table(cursor, schema_name, table_name):  
+    cursor.execute(f"""  
+    CREATE TABLE `{schema_name}`.`{table_name}` (  
+        `uid` INT NOT NULL AUTO_INCREMENT,  
+        `name` VARCHAR(45) NOT NULL,  
+        `password` VARCHAR(45) NOT NULL,  
+        PRIMARY KEY (`uid`)  
+    );  
+    """)  
+  
+# 连接到数据库  
+conn = pymysql.connect(host='localhost', user='root', password='kjh030607')  
+try:  
+    with conn.cursor() as cursor:  
+        # 执行逻辑  
+        create_schema_if_not_exists(cursor, 'log_info')  
+        drop_table_if_exists(cursor, 'log_info','login')  
+        create_table(cursor, 'log_info', 'login')  
+          
+        # 提交事务  
+        conn.commit()  
+finally:  
+    # 关闭连接  
+    conn.close()  

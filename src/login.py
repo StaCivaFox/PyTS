@@ -1,5 +1,24 @@
 import pymysql
 
+def drop_table_if_exists(cursor, schema_name, table_name):  
+    # 注意：这里我们需要指定数据库名，因为 DROP TABLE 需要知道在哪个数据库中删除表  
+    # 假设我们已经在 'log_info' 数据库中工作  
+    sql = "DROP TABLE IF EXISTS `{}`.`{}`;".format(schema_name,table_name)
+    cursor.execute(sql)  
+  
+def create_table(cursor, schema_name, table_name):  
+    cursor.execute(f"""  
+    CREATE TABLE `{schema_name}`.`{table_name}` (  
+        'id' INT NOT NULL,
+        'title' VARCHAR(100) NOT NULL,
+        `priority` INT NOT NULL,
+        `deadline` DATETIME NOT NULL,
+        `description` TEXT NOT NULL,
+        `1col` VARCHAR(45) NOT NULL); 
+        PRIMARY KEY (`id`)  
+    );  
+    """) 
+
 # 建立数据库连接
 conn = pymysql.connect(
     host='localhost',		# 主机名（或IP地址）
@@ -31,6 +50,13 @@ if __name__ == '__main__':
                 sql = "INSERT INTO login (name, password) VALUES ('{}', '{}')".format(name,password)
                 cursor.execute(sql)
                 conn.commit()
+
+                # sql = "SELECT * FROM login where name = '{}'".format(name)
+                # cursor.execute(sql)
+                # result = cursor.fetchall() # 获取查询结果，返回元组
+                # uid = result[0][0]
+                # creat_table(conn,uid)
+
             else:
                 print('密码不一致')
         else:
@@ -71,12 +97,13 @@ if __name__ == '__main__':
             else:
                 print("No")
         
-    elif f == 4:
+    elif f == 4: #注册表总览
         sql = 'SELECT * FROM login'
         cursor.execute(sql) # 执行查询操作
         result = cursor.fetchall() # 获取查询结果，返回元组
         for row in result:
             print(row)
+
 # 关闭游标和连接      
 cursor.close()
 conn.close()
