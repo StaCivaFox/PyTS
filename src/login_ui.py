@@ -2,13 +2,16 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 
-#TODO: import signup
+from login import *
+from signup import *
 
 class LoginUI(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Login")
         self.setFixedSize(400, 300)
+
+        self.sign_up_window = SignUpWindow()
 
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
@@ -44,23 +47,29 @@ class LoginUI(QMainWindow):
         global login_state
         username = self.username_input.text()
         password = self.password_input.text()
-        #TODO: 调用数据库接口，实现登录，返回登录的用户对象和获得的tasks
-        result = True
+        result, login_user, tasks, msg = login_database(username, password)
         if result:
             QMessageBox.information(self, "Success", "Login successful. Welcome, " + username + "!")
             self.username_input.clear()
             self.password_input.clear()
             self.close()
             login_state = True
+            #TODO: for debug; remove later
+            print(login_user.username)
+            for task in tasks:
+                print(task)
         else:
-            QMessageBox.warning(self, "Failed", "Login failed. Please check your username and password.")
+            QMessageBox.warning(self, "Failed", "Login failed." + msg)
             self.username_input.clear()
             self.password_input.clear()
         #print("Login button clicked")
 
     def signup_window(self):
-
-        print("Sign Up button clicked")
+        self.sign_up_window.move(self.x() + 100, self.y() + 100)
+        self.username_input.clear()
+        self.password_input.clear()
+        self.sign_up_window.show()
+        #print("Sign Up button clicked")
 
 if __name__ == "__main__":
     app = QApplication([])

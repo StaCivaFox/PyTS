@@ -23,7 +23,7 @@ def create_table(cursor, schema_name, table_name):
     """)  
   
 # 连接到数据库  
-conn = pymysql.connect(host='localhost', user='root', password='kjh030607')  
+conn = pymysql.connect(host='localhost', user='root', password='BUAA2024Python')  
 try:  
     with conn.cursor() as cursor:  
         # 执行逻辑  
