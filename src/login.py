@@ -28,7 +28,7 @@ def make_connect():     # 建立数据库连接
         host='localhost',		# 主机名（或IP地址）
         port=3306,				# 端口号，默认为3306
         user='root',			# 用户名
-        password='kjh030607',	# 密码
+        password='kjh030607',	# 你本地的数据库密码
         charset='utf8mb4'  		# 设置字符编码
     )
     conn.select_db("log_info") # 选择数据库

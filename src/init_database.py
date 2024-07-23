@@ -1,4 +1,4 @@
-# 数据库自动化生成文件
+# 数据库自动化生成文件（二次使用会格式化你的数据库！慎用）
 import pymysql  
   
 def create_schema_if_not_exists(cursor, schema_name):  
@@ -21,18 +21,20 @@ def create_table(cursor, schema_name, table_name):
         PRIMARY KEY (`uid`)  
     );  
     """)  
-  
-# 连接到数据库  
-conn = pymysql.connect(host='localhost', user='root', password='kjh030607')  
-try:  
-    with conn.cursor() as cursor:  
-        # 执行逻辑  
-        create_schema_if_not_exists(cursor, 'log_info')  
-        drop_table_if_exists(cursor, 'log_info','login')  
-        create_table(cursor, 'log_info', 'login')  
-          
-        # 提交事务  
-        conn.commit()  
-finally:  
-    # 关闭连接  
-    conn.close()  
+
+if __name__ == '__main__':
+    s = input("输入你本地的数据库密码")
+    # 连接到数据库  
+    conn = pymysql.connect(host='localhost', user='root', password = s)
+    try:  
+        with conn.cursor() as cursor:  
+            # 执行逻辑  
+            create_schema_if_not_exists(cursor, 'log_info')  
+            drop_table_if_exists(cursor, 'log_info','login')  
+            create_table(cursor, 'log_info', 'login')  
+            
+            # 提交事务  
+            conn.commit()  
+    finally:  
+        # 关闭连接  
+        conn.close()  
