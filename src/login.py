@@ -151,7 +151,7 @@ if __name__ == '__main__':
         name = input('输入学号')
         password = input('输入密码')
         password2 = input('再次输入密码')
-        add_person(name,password,password2)
+        add_person(name,password)
 
     elif f == 2: 
         name = input('输入学号')
