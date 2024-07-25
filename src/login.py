@@ -207,13 +207,25 @@ def search_schedule_by_date(name,datetime): # 查询该日期之后截止的任�
     return tuple(ans)
     break_connect(conn,cursor) # 关闭游标和连接
 
-def sort_schedules(tasks):
+def sort_schedules(tasks): # 任务自动排序功能函数
     ans = []
     task_lists = list(tasks)
     task_lists.sort(reverse=False,key=lambda task: (task.deadline,task.priority)) # 升序排列
     return tuple(task_lists)
 
-def is_overdue(task,now): # 如果当前时刻超过task截止日期了返回True,否则返回False
+def sort_schedules_by_deadline(tasks): # 任务自动排序功能函数
+    ans = []
+    task_lists = list(tasks)
+    task_lists.sort(reverse=False,key=lambda task: task.deadline) # 升序排列
+    return tuple(task_lists)
+
+def sort_schedules_by_priority(tasks): # 任务自动排序功能函数
+    ans = []
+    task_lists = list(tasks)
+    task_lists.sort(reverse=False,key=lambda task: task.priority) # 升序排列
+    return tuple(task_lists)
+
+def is_overdue(task,now): # 任务是否超时函数: 如果当前时刻超过task截止日期了返回True,否则返回False
     return ((task.deadline - now).total_seconds() < 0)
     
 def search_schedule_by_title(name,title): # 根据标题查任务(may be useless)
