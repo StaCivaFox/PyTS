@@ -1,4 +1,5 @@
 import pymysql
+from datetime import datetime
 from user import User
 from task import Task 
 
@@ -97,11 +98,11 @@ def scan_login_table():   #注册表总览
     for row in result:
         print(row)
     break_connect(conn,cursor) # 关闭游标和连接  
-##############################################################################################
+##################################################################################################
 
 
 
-###################################### 计划的增删改查 ##########################################
+#################################### 计划的增删改查以及排序 ########################################
 def add_schedule(name,task):
     conn,cursor = make_connect()
     sql = "SELECT * FROM {} where title = '{}'".format(name,task.title)
@@ -206,6 +207,27 @@ def search_schedule_by_date(name,datetime): # 查询该日期之后截止的任�
     return tuple(ans)
     break_connect(conn,cursor) # 关闭游标和连接
 
+def sort_schedules(tasks): # 任务自动排序功能函数
+    ans = []
+    task_lists = list(tasks)
+    task_lists.sort(reverse=False,key=lambda task: (task.deadline,task.priority)) # 升序排列
+    return tuple(task_lists)
+
+def sort_schedules_by_deadline(tasks): # 任务自动排序功能函数
+    ans = []
+    task_lists = list(tasks)
+    task_lists.sort(reverse=False,key=lambda task: task.deadline) # 升序排列
+    return tuple(task_lists)
+
+def sort_schedules_by_priority(tasks): # 任务自动排序功能函数
+    ans = []
+    task_lists = list(tasks)
+    task_lists.sort(reverse=False,key=lambda task: task.priority) # 升序排列
+    return tuple(task_lists)
+
+def is_overdue(task,now): # 任务是否超时函数: 如果当前时刻超过task截止日期了返回True,否则返回False
+    return ((task.deadline - now).total_seconds() < 0)
+    
 def search_schedule_by_title(name,title): # 根据标题查任务(may be useless)
     conn,cursor = make_connect()
     sql = "SELECT * FROM {} WHERE title = '{}'".format(name,title)
@@ -329,7 +351,8 @@ if __name__ == '__main__':
         deadline = '{}-{}-{} {}:{}:00'.format(year,month,day,hour,minute)
         description = input('输入描述')
         state = input('输入状态')
-        add_schedule(name,title,priority,deadline,description,state)
+        task0 = Task(title, priority, deadline, description, state)
+        add_schedule(name,task0)
 
     elif f == 7:
         name = input('输入名字')
@@ -345,8 +368,8 @@ if __name__ == '__main__':
         description = input('输入描述')
         state = input('输入状态')
         task0 = Task(title, priority, deadline, description, state)
-        edit_schedule_priority(name,task0,priority)
-        # edit_schedule_deadline(name,task0,deadline)
+        # edit_schedule_priority(name,task0,priority)
+        edit_schedule_deadline(name,task0,deadline)
         # edit_schedule_description(name,task0,description)
         # edit_schedule_state(name,task0,state)
 
@@ -364,3 +387,27 @@ if __name__ == '__main__':
         year,month,day,hour,minute = input('输入年 月 日 小时 分钟').split(' ')
         date = '{}-{}-{} {}:{}:00'.format(year,month,day,hour,minute)
         print(search_schedule_by_date(name,date))
+
+    elif f == 12:
+        # title = 'test'
+        # priority = '1'
+        # year,month,day,hour,minute = input('输入年 月 日 小时 分钟').split(' ')
+        # deadline = '{}-{}-{} {}:{}:00'.format(year,month,day,hour,minute)
+        # description = '123'
+        # state = '123'
+        task0 = search_schedule_by_title('KJH','123')
+
+        year,month,day,hour,minute = input('输入年 月 日 小时 分钟').split(' ')
+        now = '{}-{}-{} {}:{}:00'.format(year,month,day,hour,minute)
+        now = datetime.strptime(now, "%Y-%m-%d %H:%M:%S")
+        print(is_overdue(task0,now))
+
+    elif f == 13:
+        print('before:')
+        for i in search_schedule_by_date('KJH','1-12-12 0:0:0'):
+            print(i.title)
+
+        print('after:')
+        for i in sort_schedules(search_schedule_by_date('KJH','1-12-12 0:0:0')):
+            print(i.title)
+        
