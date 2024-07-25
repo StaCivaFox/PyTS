@@ -55,9 +55,11 @@ class LoginUI(QMainWindow):
             self.close()
             login_state = True
             #TODO: for debug; remove later
+            '''
             print(login_user.username)
             for task in tasks:
                 print(task)
+            '''
         else:
             QMessageBox.warning(self, "Failed", "Login failed." + msg)
             self.username_input.clear()
@@ -71,10 +73,10 @@ class LoginUI(QMainWindow):
         self.sign_up_window.show()
         #print("Sign Up button clicked")
 
-if __name__ == "__main__":
-    app = QApplication([])
-
+def login_window(app):
+    
     window = LoginUI()
     window.show()
 
     app.exec()
+    return login_state, login_user, tasks

@@ -221,15 +221,18 @@ class Ui_MainWindow(QMainWindow):
         elif btn == self.calendarButton:
             self.stackedWidget.setCurrentWidget(self.page_3)
         elif btn == self.reminderButton:
+            #TODO
             pass
         elif btn == self.schedulerButton:
+            #TODO
             pass
 
-
+'''
 if __name__ == '__main__':
     app = QApplication([])
     mainWindow = Ui_MainWindow()
     mainWindow.show()
     app.exec()
+'''
 
 

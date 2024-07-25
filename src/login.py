@@ -30,7 +30,7 @@ def make_connect():     # 建立数据库连接
         host='localhost',		# 主机名（或IP地址）
         port=3306,				# 端口号，默认为3306
         user='root',			# 用户名
-        password='kjh030607',	# 你本地的数据库密码
+        password='BUAA2024Python',	# 你本地的数据库密码
         charset='utf8mb4'  		# 设置字符编码
     )
     conn.select_db("log_info") # 选择数据库
@@ -62,6 +62,7 @@ def add_person(name, password):   # 注册模块
         break_connect(conn,cursor) # 关闭游标和连接  
         return False, "User name already exists!\n"
 
+
 def add_schedule(name,title,priority,deadline,description,state):
     conn,cursor = make_connect()
     sql = "SELECT * FROM {} where title = '{}'".format(name,title)
@@ -76,6 +77,7 @@ def add_schedule(name,title,priority,deadline,description,state):
     else:
         break_connect(conn,cursor) # 关闭游标和连接  
         return False, "任务已存在！\n"
+
 
 def edit_schedule_priority(name,title,priority):
     conn,cursor = make_connect()
@@ -92,6 +94,7 @@ def edit_schedule_priority(name,title,priority):
         break_connect(conn,cursor) # 关闭游标和连接  
         return False, "无此任务！\n"
 
+
 def edit_schedule_deadline(name,title,deadline):
     conn,cursor = make_connect()
     sql = "SELECT * FROM {} where title = '{}'".format(name,title)
@@ -106,6 +109,7 @@ def edit_schedule_deadline(name,title,deadline):
     else:
         break_connect(conn,cursor) # 关闭游标和连接  
         return False, "无此任务！\n"
+
 
 def edit_schedule_description(name,title,description):
     conn,cursor = make_connect()
@@ -122,6 +126,7 @@ def edit_schedule_description(name,title,description):
         break_connect(conn,cursor) # 关闭游标和连接  
         return False, "无此任务！\n"
 
+
 def edit_schedule_state(name,title,state):
     conn,cursor = make_connect()
     sql = "SELECT * FROM {} where title = '{}'".format(name,title)
@@ -137,6 +142,7 @@ def edit_schedule_state(name,title,state):
         break_connect(conn,cursor) # 关闭游标和连接  
         return False, "无此任务！\n"
 
+
 def scan_schedule(name):
     conn,cursor = make_connect()
     sql = 'SELECT * FROM {}'.format(name)
@@ -145,6 +151,7 @@ def scan_schedule(name):
     for row in result:
         print(row)
     break_connect(conn,cursor) # 关闭游标和连接
+
 
 def search_schedule(name,title):
     conn,cursor = make_connect()
@@ -155,8 +162,9 @@ def search_schedule(name,title):
     custom_tuple = (result[0][3].year, result[0][3].month, result[0][3].day, result[0][3].hour, result[0][3].minute) 
     ans = list(result[0])
     ans[3] = custom_tuple
-    return tuple(ans)
     break_connect(conn,cursor) # 关闭游标和连接
+    return tuple(ans)
+
 
 def delete_schedule(name,title):
     conn,cursor = make_connect()
@@ -181,7 +189,7 @@ def judge_person(name, password):     #身份验证模块
     sql = "SELECT * FROM login where name = '{}'".format(name)  
     cursor.execute(sql) # 执行查询操作
     result = cursor.fetchone() # 获取查询结果，返回元组
-    if len(result) == 0:
+    if result == None:
         #print('None')
         break_connect(conn,cursor) # 关闭游标和连接
         return False, "User does not exist!\n", None, None
