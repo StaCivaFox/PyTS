@@ -186,19 +186,24 @@ def scan_schedule(name):
         print(row)
     break_connect(conn,cursor) # 关闭游标和连接
 
-def search_schedule_by_date(name,datetime): # 查询该截止日期之前的任务
+def search_schedule_by_date(name,datetime): # 查询该日期之后截止的任务
     conn,cursor = make_connect()
     sql = "SELECT * FROM `{}` WHERE TIMESTAMPDIFF(MINUTE, CAST('{}' AS DATETIME), deadline) >= 0".format(name,datetime) 
     cursor.execute(sql) # 执行查询操作
     result = cursor.fetchall() # 获取查询结果，返回元组
-    from datetime import datetime    
-    ans = list(result)
-    ans_lists = [list(tup) for tup in ans]
-    for one in ans_lists:
-        custom_tuple = (one[3].year, one[3].month, one[3].day, one[3].hour, one[3].minute) 
-        one[3] = custom_tuple
-    ans_tups = [tuple(lists) for lists in ans_lists]
-    return tuple(ans_tups)
+    # from datetime import datetime    
+    # ans = list(result)
+    # ans_lists = [list(tup) for tup in ans]
+    # for one in ans_lists:
+    #     custom_tuple = (one[3].year, one[3].month, one[3].day, one[3].hour, one[3].minute) 
+    #     one[3] = custom_tuple
+    # ans_tups = [tuple(lists) for lists in ans_lists]
+    # return tuple(ans_tups)
+    ans = []
+    for one in result:
+        task = Task(one[1], one[2], one[3], one[4], one[5])
+        ans.append(task)
+    return tuple(ans)
     break_connect(conn,cursor) # 关闭游标和连接
 
 def search_schedule_by_title(name,title): # 根据标题查任务(may be useless)
@@ -206,11 +211,13 @@ def search_schedule_by_title(name,title): # 根据标题查任务(may be useless
     sql = "SELECT * FROM {} WHERE title = '{}'".format(name,title)
     cursor.execute(sql) # 执行查询操作
     result = cursor.fetchall() # 获取查询结果，返回元组
-    from datetime import datetime  
-    custom_tuple = (result[0][3].year, result[0][3].month, result[0][3].day, result[0][3].hour, result[0][3].minute) 
-    ans = list(result[0])
-    ans[3] = custom_tuple
-    return tuple(ans)
+    # from datetime import datetime  
+    # custom_tuple = (result[0][3].year, result[0][3].month, result[0][3].day, result[0][3].hour, result[0][3].minute) 
+    # ans = list(result[0])
+    # ans[3] = custom_tuple
+    # return tuple(ans)
+    task = Task(result[0][1], result[0][2], result[0][3], result[0][4], result[0][5])
+    return task
     break_connect(conn,cursor) # 关闭游标和连接
 
 def delete_schedule(name,task): # 删掉任务
@@ -286,7 +293,6 @@ def create_table(table_name):  # 建立个人存储内容表
 
 
 ######################################## 本地验证 ###############################################
-'''
 if __name__ == '__main__':
     
     f = int(input()) # 操作数1\2\3\4
@@ -338,7 +344,6 @@ if __name__ == '__main__':
         deadline = '{}-{}-{} {}:{}:00'.format(year,month,day,hour,minute)
         description = input('输入描述')
         state = input('输入状态')
-        from task import *
         task0 = Task(title, priority, deadline, description, state)
         edit_schedule_priority(name,task0,priority)
         # edit_schedule_deadline(name,task0,deadline)
@@ -359,4 +364,3 @@ if __name__ == '__main__':
         year,month,day,hour,minute = input('输入年 月 日 小时 分钟').split(' ')
         date = '{}-{}-{} {}:{}:00'.format(year,month,day,hour,minute)
         print(search_schedule_by_date(name,date))
-'''
