@@ -207,7 +207,7 @@ class Ui_MainWindow(QMainWindow):
         ___qtablewidgetitem1 = self.tableWidget.horizontalHeaderItem(1)
         ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"Deadline", None))
         ___qtablewidgetitem2 = self.tableWidget.horizontalHeaderItem(2)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Required Time", None))
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Description", None))
         ___qtablewidgetitem3 = self.tableWidget.horizontalHeaderItem(3)
         ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"Priority", None))
         ___qtablewidgetitem4 = self.tableWidget.horizontalHeaderItem(4)
@@ -226,6 +226,17 @@ class Ui_MainWindow(QMainWindow):
         elif btn == self.schedulerButton:
             #TODO
             pass
+
+    
+    def printTasks(self, login_user, tasks):
+        self.tableWidget.setRowCount(len(tasks))
+        for i, task in enumerate(tasks):
+            self.tableWidget.setItem(i, 0, QTableWidgetItem(task.title))
+            self.tableWidget.setItem(i, 1, QTableWidgetItem(str(task.deadline)))
+            self.tableWidget.setItem(i, 2, QTableWidgetItem(task.description))
+            self.tableWidget.setItem(i, 3, QTableWidgetItem(str(task.priority)))
+            self.tableWidget.setItem(i, 4, QTableWidgetItem(str(task.state)))
+        pass
 
 '''
 if __name__ == '__main__':

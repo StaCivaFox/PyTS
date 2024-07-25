@@ -3,7 +3,7 @@ import os
 from login_ui import *
 from login import *
 
-import design
+import homepage
 
 from PySide6.QtCore import *
 from PySide6.QtGui import *
@@ -13,16 +13,19 @@ import datetime
 import time
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, login_user, tasks):
         QMainWindow.__init__(self)
-        self.ui = design.Ui_MainWindow()
+        self.ui = homepage.Ui_MainWindow()
         self.ui.setupUi(self)
+        self.ui.printTasks(login_user, tasks)
+        self.show()
         
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     login_state, login_user, tasks = login_window(app)
-    window = MainWindow()
-    window.show()
+    window = MainWindow(login_user, tasks)
+    #window.show()
     if login_state:
         sys.exit(app.exec())
     else:
