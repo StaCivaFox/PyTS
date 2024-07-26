@@ -28,7 +28,7 @@ class Ui_Create(QMainWindow):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(539, 362)
+        MainWindow.resize(539, 312)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -141,6 +141,7 @@ class Ui_Create(QMainWindow):
         self.statusbar.setObjectName(u"statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
+        self.initButton()
         self.retranslateUi(MainWindow)
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -151,13 +152,21 @@ class Ui_Create(QMainWindow):
         self.pushButton.setText(QCoreApplication.translate("MainWindow", u"Cancel", None))
         self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"Ok", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"title       ", None))
-        self.label_2.setText(QCoreApplication.translate("MainWindow", u"content", None))
+        self.label_2.setText(QCoreApplication.translate("MainWindow", u"description", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"deadline", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"priority", None))
-        self.label_5.setText(QCoreApplication.translate("MainWindow", u"status", None))
+        self.label_5.setText(QCoreApplication.translate("MainWindow", u"state", None))
     # retranslateUi
 
+    def initButton(self):
+        self.pushButton.clicked.connect(self.clickCancelButton)
+        self.pushButton_2.clicked.connect(self.clickOkButton())
 
+    def clickCancelButton(self): #设置cancel按钮的行为，点击后关闭窗口
+        self.close()
+
+    def clickOkButton(self): #设置ok按钮的行为，具体来说是点击ok后，将这几个框4的信息收集，删除当前名字的task并重新构建一个
+        pass
 
 def ui_create_init():
     return Ui_Create()
