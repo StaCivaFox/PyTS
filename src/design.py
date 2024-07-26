@@ -191,7 +191,40 @@ class Ui_MainWindow(QMainWindow):
 
     #delete弹出新窗口，展示所有任务，在任务的右边显示check box， 选后点击确认将所有选中的任务删除，取消直接退出
     def clickDeleteButton(self):
-        pass
+        ##########################################  test  #############################################################
+        # 代替数据库初始化（测试用），使用时需替换为数据库版本
+        # tasks = [
+        #     Task("Task1", "High", "2023-04-01", "This is a task", "Not Started"),
+        #     Task("Task2", "Medium", "2023-04-02", "This is another task", "In Progress"),
+        #     Task("Task3", "Low", "2023-04-03", "This is a low priority task", "Completed")
+        # ]
+        # tasks = [
+        #     Task("Task1", 1, "2023-04-01", "This is a task", 5),
+        #     Task("Task2", 2, "2023-04-02", "This is another task", 6),
+        #     Task("Task3", 3, "2023-04-03", "This is a low priority task", 4)
+        # ]
+        # create_table(self.name)
+        # for task in tasks:
+        #     add_schedule(self.name, task)
+        ###############################################################################################################
+
+        # 获取任务列表
+        conn, cursor = make_connect()
+        sql = 'SELECT * FROM {}'.format(self.name)
+        cursor.execute(sql)  # 执行查询操作
+        task_tuple = cursor.fetchall()  # 获取查询结果，返回元组
+        break_connect(conn, cursor)  # 关闭游标和连接
+        if task_tuple == ():
+            print(f"No tasks for {self.name}")
+            return
+        task_list = get_task(task_tuple)
+        # for task in task_list:
+        #     print(task)
+
+        # 跳转删除页面
+        self.deleteWindow = Ui_Delete(name=self.name, task_list=task_list)
+        self.deleteWindow.show()
+        # scan_schedule(self.name) # 删除前数据库任务列表
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
