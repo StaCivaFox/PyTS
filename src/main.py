@@ -15,9 +15,10 @@ import time
 class MainWindow(QMainWindow):
     def __init__(self, login_user, tasks):
         QMainWindow.__init__(self)
-        self.ui = homepage.Ui_MainWindow()
-        self.ui.setupUi(self)
-        self.ui.printTasks(login_user, tasks)
+        self.home = homepage.Ui_MainWindow()
+        self.home.setupUi(self)
+        self.home.homepageGetLoginUserAndTasks(login_user, tasks)
+        self.home.printTasks()
         self.show()
         
 

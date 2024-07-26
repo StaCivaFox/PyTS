@@ -13,6 +13,16 @@ from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from ui_create import Ui_Create
 
+from login import *
+from datetime import datetime
+from task import *
+
+def is_valid_datetime(date_string, date_format="%Y-%m-%d %H:%M:%S"):
+    try:
+        datetime.strptime(date_string, date_format)
+        return True
+    except ValueError:
+        return False
 
 class Ui_MainWindow(QMainWindow):
     def __init__(self):
@@ -156,6 +166,7 @@ class Ui_MainWindow(QMainWindow):
         self.tableWidget.setAutoFillBackground(False)
         self.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows) #设置为整行选中
         self.tableWidget.clicked.connect(self.clickTable)
+        #self.tableWidget.itemChanged.connect(self.updateDatabase)
 
     def initLabel(self):
         self.label = QLabel(self.centralwidget)
@@ -175,8 +186,10 @@ class Ui_MainWindow(QMainWindow):
 
     def clickCreateButton(self):
         self.createWindow = Ui_Create()
+        self.createWindow.pushButton_2.clicked.connect(self.createTask)
         self.createWindow.show()
         #获取填的信息并导入数据库,并将改动同步到homeTable中
+        
         pass
 
     #read 和 update功能直接合并，取消二者的按钮，直接再表格中选中点击实现查看修改功能
@@ -203,7 +216,7 @@ class Ui_MainWindow(QMainWindow):
         self.updateButton.setText(QCoreApplication.translate("MainWindow", u"Update", None))
         self.deleteButton.setText(QCoreApplication.translate("MainWindow", u"Delete", None))
         ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Name", None))
+        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Title", None))
         ___qtablewidgetitem1 = self.tableWidget.horizontalHeaderItem(1)
         ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"Deadline", None))
         ___qtablewidgetitem2 = self.tableWidget.horizontalHeaderItem(2)
@@ -228,15 +241,65 @@ class Ui_MainWindow(QMainWindow):
             pass
 
     
-    def printTasks(self, login_user, tasks):
-        self.tableWidget.setRowCount(len(tasks))
-        for i, task in enumerate(tasks):
+    def homepageGetLoginUserAndTasks(self, login_user, tasks):
+        global home_login_user
+        global home_tasks
+        home_login_user = login_user
+        home_tasks = tasks
+
+
+    def printTasks(self):
+        self.tableWidget.setRowCount(len(home_tasks))
+        for i, task in enumerate(home_tasks):
             self.tableWidget.setItem(i, 0, QTableWidgetItem(task.title))
             self.tableWidget.setItem(i, 1, QTableWidgetItem(str(task.deadline)))
             self.tableWidget.setItem(i, 2, QTableWidgetItem(task.description))
             self.tableWidget.setItem(i, 3, QTableWidgetItem(str(task.priority)))
             self.tableWidget.setItem(i, 4, QTableWidgetItem(str(task.state)))
         pass
+
+    '''
+    button push handlers
+    '''
+
+    def createTask(self):
+        title = self.createWindow.lineEdit.text()
+        description = self.createWindow.textEdit.toPlainText()
+        new_task = Task(title, 1, "2022-01-01", description, "ongoing")
+
+    def addTaskToDatabase(self, new_task):
+        res, msg = add_schedule(home_login_user, new_task)
+        print(msg)
+        self.updateHomeTasks()
+
+
+    def updateHomeTasks(self):
+        home_tasks = scan_schedule(home_login_user)
+        self.printTasks()
+
+        
+    
+
+
+    '''
+    def updateDatabase(self, item):
+        row = item.row()
+        column = item.column()
+        value = item.text()
+        task_to_be_altered = home_tasks[row]
+        #TODO: 将对数据的修改同步到后端
+        if column == 0:
+            #TODO: alter title
+            pass
+        elif column == 1:
+            if is_valid_datetime(value, "%Y-%m-%d %H:%M:%S"):
+                edit_schedule_deadline(home_login_user, task_to_be_altered, value)
+            else:
+                QMessageBox.warning(self, "Failed", "Invalid datetime format. Please use YYYY-MM-DD HH:MM:SS.")
+        else:
+            pass
+        #print(row, column, value)
+    '''
 
 '''
 if __name__ == '__main__':

@@ -45,6 +45,7 @@ class LoginUI(QMainWindow):
         global login_user
         global tasks
         global login_state
+        login_state = False
         username = self.username_input.text()
         password = self.password_input.text()
         result, login_user, tasks, msg = login_database(username, password)

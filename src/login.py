@@ -118,6 +118,7 @@ def add_schedule(name,task):
         break_connect(conn,cursor) # 关闭游标和连接  
         return False, "任务已存在！\n"
 
+
 def edit_schedule_priority(name,task,priority):
     conn,cursor = make_connect()
     sql = "SELECT * FROM {} where title = '{}'".format(name,task.title)
@@ -133,9 +134,11 @@ def edit_schedule_priority(name,task,priority):
         break_connect(conn,cursor) # 关闭游标和连接  
         return False, "无此任务！\n"
 
+
 def edit_schedule_deadline(name,task,deadline):
     conn,cursor = make_connect()
     sql = "SELECT * FROM {} where title = '{}'".format(name,task.title)
+    print(sql)
     cursor.execute(sql)
     result = cursor.fetchall() # 获取查询结果，返回元组
     if len(result) != 0:
@@ -147,6 +150,7 @@ def edit_schedule_deadline(name,task,deadline):
     else:
         break_connect(conn,cursor) # 关闭游标和连接  
         return False, "无此任务！\n"
+
 
 def edit_schedule_description(name,task,description):
     conn,cursor = make_connect()
@@ -163,6 +167,7 @@ def edit_schedule_description(name,task,description):
         break_connect(conn,cursor) # 关闭游标和连接  
         return False, "无此任务！\n"
 
+
 def edit_schedule_state(name,task,state):
     conn,cursor = make_connect()
     sql = "SELECT * FROM {} where title = '{}'".format(name,task.title)
@@ -178,14 +183,17 @@ def edit_schedule_state(name,task,state):
         break_connect(conn,cursor) # 关闭游标和连接  
         return False, "无此任务！\n"
 
+
 def scan_schedule(name):
     conn,cursor = make_connect()
     sql = 'SELECT * FROM {}'.format(name)
     cursor.execute(sql) # 执行查询操作
     result = cursor.fetchall() # 获取查询结果，返回元组
-    for row in result:
-        print(row)
+    #for row in result:
+    #    print(row)
     break_connect(conn,cursor) # 关闭游标和连接
+    return result
+
 
 def search_schedule_by_date(name,datetime): # 查询该日期之后截止的任务
     conn,cursor = make_connect()
@@ -204,8 +212,9 @@ def search_schedule_by_date(name,datetime): # 查询该日期之后截止的任�
     for one in result:
         task = Task(one[1], one[2], one[3], one[4], one[5])
         ans.append(task)
-    return tuple(ans)
     break_connect(conn,cursor) # 关闭游标和连接
+    return tuple(ans)
+    
 
 def sort_schedules(tasks): # 任务自动排序功能函数
     ans = []
@@ -213,11 +222,13 @@ def sort_schedules(tasks): # 任务自动排序功能函数
     task_lists.sort(reverse=False,key=lambda task: (task.deadline,task.priority)) # 升序排列
     return tuple(task_lists)
 
+
 def sort_schedules_by_deadline(tasks): # 任务自动排序功能函数
     ans = []
     task_lists = list(tasks)
     task_lists.sort(reverse=False,key=lambda task: task.deadline) # 升序排列
     return tuple(task_lists)
+
 
 def sort_schedules_by_priority(tasks): # 任务自动排序功能函数
     ans = []
@@ -225,9 +236,11 @@ def sort_schedules_by_priority(tasks): # 任务自动排序功能函数
     task_lists.sort(reverse=False,key=lambda task: task.priority) # 升序排列
     return tuple(task_lists)
 
+
 def is_overdue(task,now): # 任务是否超时函数: 如果当前时刻超过task截止日期了返回True,否则返回False
     return ((task.deadline - now).total_seconds() < 0)
-    
+
+
 def search_schedule_by_title(name,title): # 根据标题查任务(may be useless)
     conn,cursor = make_connect()
     sql = "SELECT * FROM {} WHERE title = '{}'".format(name,title)
@@ -239,8 +252,9 @@ def search_schedule_by_title(name,title): # 根据标题查任务(may be useless
     # ans[3] = custom_tuple
     # return tuple(ans)
     task = Task(result[0][1], result[0][2], result[0][3], result[0][4], result[0][5])
-    return task
     break_connect(conn,cursor) # 关闭游标和连接
+    return task
+
 
 def delete_schedule(name,task): # 删掉任务
     conn,cursor = make_connect()
@@ -303,7 +317,7 @@ def create_table(table_name):  # 建立个人存储内容表
         `priority` INT NOT NULL,
         `deadline` DATETIME NOT NULL,
         `description` TEXT NOT NULL,
-        `state` INT NOT NULL,
+        `state` TEXT NOT NULL,
         PRIMARY KEY(`id`)
     );  
     """.format(table_name)
