@@ -12,6 +12,7 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from ui_create import Ui_Create
+from ui_readAndUpdate import Ui_ReadAndUpdate
 
 
 class Ui_MainWindow(QMainWindow):
@@ -176,16 +177,17 @@ class Ui_MainWindow(QMainWindow):
     def clickCreateButton(self):
         self.createWindow = Ui_Create()
         self.createWindow.show()
-        #获取填的信息并导入数据库,并将改动同步到homeTable中
-        pass
 
     #read 和 update功能直接合并，取消二者的按钮，直接再表格中选中点击实现查看修改功能
     def clickTable(self):
         row = self.tableWidget.currentRow()
-        print(row)
         if row > -1:
             name = self.tableWidget.item(row, 0)#获取任务名字，从数据库中get相关信息并展示，展示一个类似create的弹窗
-            pass
+            # 使用name从数据库获取相关任务
+            self.readAndUpdateWindow = Ui_ReadAndUpdate()
+            # 下边这一行实现初始化显示，即read的功能
+            self.readAndUpdateWindow.initWord()
+            self.readAndUpdateWindow.show()
 
     #delete弹出新窗口，展示所有任务，在任务的右边显示check box， 选后点击确认将所有选中的任务删除，取消直接退出
     def clickDeleteButton(self):
@@ -216,8 +218,9 @@ class Ui_MainWindow(QMainWindow):
 
     def switchPage(self):
         btn = self.sender()
-        if btn == self.homeButton:
+        if btn == self.homeButton: #点击的时候实现一次更新，将之前对task的操作同步到table上
             self.stackedWidget.setCurrentWidget(self.page_4)
+            pass
         elif btn == self.calendarButton:
             self.stackedWidget.setCurrentWidget(self.page_3)
         elif btn == self.reminderButton:

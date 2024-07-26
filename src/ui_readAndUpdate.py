@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QDateEdit, QHBoxLayout,
     QWidget)
 from ui_inform import ui_inform_init
 
-class Ui_Create(QMainWindow):
+class Ui_ReadAndUpdate(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
         self.setupUi(self)
@@ -155,6 +155,7 @@ class Ui_Create(QMainWindow):
         MainWindow.setStatusBar(self.statusbar)
 
         self.initButton()
+        self.initWord()
         self.retranslateUi(MainWindow)
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -200,5 +201,13 @@ class Ui_Create(QMainWindow):
             pass
             self.close()
 
-def ui_create_init():
-    return Ui_Create()
+    def initWord(self, title, priority, deadline, description, state): #在show之前调用，获取那几项要提前展示的内容并设置
+        self.lineEdit.setText(title)
+        self.textEdit.setText(description)
+        self.dateEdit.dateTimeFromText(deadline)
+        self.comboBox.setCurrentText(state)
+        self.comboBox_2.setCurrentText(priority)
+
+
+def ui_readAndUpdate_init():
+    return Ui_ReadAndUpdate()
