@@ -13,7 +13,8 @@ from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from ui_create import Ui_Create
 from ui_readAndUpdate import Ui_ReadAndUpdate
-
+from login import *
+from ui_delete import Ui_Delete
 
 class Ui_MainWindow(QMainWindow):
     def __init__(self):
@@ -153,10 +154,34 @@ class Ui_MainWindow(QMainWindow):
         self.tableWidget.setHorizontalHeaderItem(4, __qtablewidgetitem4)
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.tableWidget.setGridStyle(Qt.PenStyle.SolidLine)
+        # 禁用表格的自动排序功能
+        self.tableWidget.setSortingEnabled(False)
         self.tableWidget.setAcceptDrops(False)
         self.tableWidget.setAutoFillBackground(False)
         self.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows) #设置为整行选中
+
         self.tableWidget.clicked.connect(self.clickTable)
+
+    def freshHomeTable(self):
+        #获取当前所有任务
+        task_tuple = scan_schedule(self.name)
+        if task_tuple == ():
+            print(f"No tasks for {self.name}")
+            return
+        task_list = get_task(task_tuple)
+        # 删除所有的后，重新逐行显示
+        self.tableWidget.clear()
+        for row_idx, task in enumerate(task_list):
+            self.tableWidget.setItem(row_idx, 0, QTableWidgetItem(task.title))
+            self.tableWidget.setItem(row_idx, 1, QTableWidgetItem(str(task.priority)))
+            self.tableWidget.setItem(row_idx, 2, QTableWidgetItem(str(task.deadline)))
+            self.tableWidget.setItem(row_idx, 3, QTableWidgetItem(task.description))
+            self.tableWidget.setItem(row_idx, 4, QTableWidgetItem(str(task.state)))
+        self.tableWidget.resizeColumnsToContents()  # 调整列宽以适应内容
+        min_width = 50
+        for i in range(self.tableWidget.columnCount()):  # 设置最小列宽
+            self.tableWidget.setColumnWidth(i, max(min_width, self.tableWidget.columnWidth(i)))
 
     def initLabel(self):
         self.label = QLabel(self.centralwidget)
@@ -182,11 +207,12 @@ class Ui_MainWindow(QMainWindow):
     def clickTable(self):
         row = self.tableWidget.currentRow()
         if row > -1:
-            name = self.tableWidget.item(row, 0)#获取任务名字，从数据库中get相关信息并展示，展示一个类似create的弹窗
-            # 使用name从数据库获取相关任务
+            taskname = self.tableWidget.item(row, 0)#获取任务名字，从数据库中get相关信息并展示，展示一个类似create的弹窗
             self.readAndUpdateWindow = Ui_ReadAndUpdate()
+            # 通过用户名和任务名获取任务
+            task = search_schedule_by_title(self.name, taskname)
             # 下边这一行实现初始化显示，即read的功能
-            self.readAndUpdateWindow.initWord()
+            self.readAndUpdateWindow.initWord(task.title, task.priority, task.deadline, task.description, task.state)
             self.readAndUpdateWindow.show()
 
     #delete弹出新窗口，展示所有任务，在任务的右边显示check box， 选后点击确认将所有选中的任务删除，取消直接退出
@@ -209,11 +235,7 @@ class Ui_MainWindow(QMainWindow):
         ###############################################################################################################
 
         # 获取任务列表
-        conn, cursor = make_connect()
-        sql = 'SELECT * FROM {}'.format(self.name)
-        cursor.execute(sql)  # 执行查询操作
-        task_tuple = cursor.fetchall()  # 获取查询结果，返回元组
-        break_connect(conn, cursor)  # 关闭游标和连接
+        task_tuple = scan_schedule(self.name)
         if task_tuple == ():
             print(f"No tasks for {self.name}")
             return
@@ -238,22 +260,22 @@ class Ui_MainWindow(QMainWindow):
         self.updateButton.setText(QCoreApplication.translate("MainWindow", u"Update", None))
         self.deleteButton.setText(QCoreApplication.translate("MainWindow", u"Delete", None))
         ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Name", None))
+        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"title", None))
         ___qtablewidgetitem1 = self.tableWidget.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"Deadline", None))
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"priority", None))
         ___qtablewidgetitem2 = self.tableWidget.horizontalHeaderItem(2)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Required Time", None))
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"deadline", None))
         ___qtablewidgetitem3 = self.tableWidget.horizontalHeaderItem(3)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"Priority", None))
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"description", None))
         ___qtablewidgetitem4 = self.tableWidget.horizontalHeaderItem(4)
-        ___qtablewidgetitem4.setText(QCoreApplication.translate("MainWindow", u"Status", None))
+        ___qtablewidgetitem4.setText(QCoreApplication.translate("MainWindow", u"state", None))
     # retranslateUi
 
     def switchPage(self):
         btn = self.sender()
         if btn == self.homeButton: #点击的时候实现一次更新，将之前对task的操作同步到table上
+            self.freshHomeTable()
             self.stackedWidget.setCurrentWidget(self.page_4)
-            pass
         elif btn == self.calendarButton:
             self.stackedWidget.setCurrentWidget(self.page_3)
         elif btn == self.reminderButton:
