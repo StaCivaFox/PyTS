@@ -149,7 +149,7 @@ class Ui_Delete(QMainWindow):
                 sql = "DELETE FROM {} where title = '{}'".format(name, title)
                 cursor.execute(sql)
                 conn.commit()
-                print(f'Table {name} delete task<{title}> successfully')
+                print(f'User {name} delete task<{title}> successfully')
         break_connect(conn, cursor)  # 关闭游标和连接
 
         # scan_schedule(self.name)  # 删除后任务列表
