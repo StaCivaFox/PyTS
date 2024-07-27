@@ -9,19 +9,25 @@
 ################################################################################
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
+                            QMetaObject, QObject, QPoint, QRect,
+                            QSize, QTime, QUrl, Qt, Signal)
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QComboBox, QDateEdit, QHBoxLayout,
-    QLabel, QLineEdit, QMainWindow, QMenuBar,
-    QPushButton, QSizePolicy, QStatusBar, QTextEdit,
-    QWidget)
+                               QLabel, QLineEdit, QMainWindow, QMenuBar,
+                               QPushButton, QSizePolicy, QStatusBar, QTextEdit,
+                               QWidget, QMessageBox)
+
+from task import Task
 from ui_inform import ui_inform_init
+from datetime import datetime
+from login import *
+import globals
 
 class Ui_ReadAndUpdate(QMainWindow):
+    taskCreated = Signal()
     def __init__(self):
         QMainWindow.__init__(self)
         self.setupUi(self)
@@ -155,7 +161,6 @@ class Ui_ReadAndUpdate(QMainWindow):
         MainWindow.setStatusBar(self.statusbar)
 
         self.initButton()
-        self.initWord()
         self.retranslateUi(MainWindow)
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -191,15 +196,34 @@ class Ui_ReadAndUpdate(QMainWindow):
     def clickOkButton(self): #设置ok按钮的行为，具体来说是点击ok后，获取填的信息并导入数据库，将这几个框4的信息收集，删除当前名字的task并重新构建一个
         title = self.lineEdit.text()
         description = self.textEdit.toPlainText()
-        deadline = self.dateEdit.date()#返回是一个QDate对象，不想用这种形式可以toString或使用year()等方法获取具体年月日
+        qdate = self.dateEdit.date()  # 返回是一个QDate对象，不想用这种形式可以toString或使用year()等方法获取具体年月日
+        deadline = datetime.combine(qdate.toPython(), datetime.min.time())  # Convert to datetime object
         priority = self.comboBox_2.currentText()#返回string类型
         state = self.comboBox.currentText()
         if title == '' or description == '':
-            self.informWindow = ui_inform_init()
-            self.informWindow.show()
+            QMessageBox.information(self, "Falied", "Title and Description can not be blank.")
         else: # 连接数据库，先通过title看有没有重复的，有就先删再加，没有直接加
-            pass
-            self.close()
+            new_task = Task(title, priority, deadline, description, state)
+            result, msg = add_schedule(globals.login_user.get_username(), new_task)
+            if result:
+                QMessageBox.information(self, "Success", "Successfully add task!")
+                self.taskCreated.emit()
+                self.close()
+            else:
+                reply = QMessageBox.question(self, 'Update confirm',
+                                         "Task already exists. Do you want to update it?",
+                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                if reply == QMessageBox.Yes:
+                    delete_schedule(globals.login_user.get_username(), new_task)
+                    result, msg = add_schedule(globals.login_user.get_username(), new_task)
+                    if result:
+                        QMessageBox.information(self, "Success", "Successfully updated task!")
+                        self.taskCreated.emit()
+                        self.close()
+                    else:
+                        QMessageBox.information(self, "Failed", "Failed to update task!")
+                else:
+                    QMessageBox.information(self, "Cancelled", "Task update cancelled.")
 
     def initWord(self, title, priority, deadline, description, state): #在show之前调用，获取那几项要提前展示的内容并设置
         self.lineEdit.setText(title)
