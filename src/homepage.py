@@ -236,12 +236,6 @@ class Ui_MainWindow(QMainWindow):
 
     # delete弹出新窗口，展示所有任务，在任务的右边显示check box， 选后点击确认将所有选中的任务删除，取消直接退出
     def clickDeleteButton(self):
-        task_list = self.get_tasks()
-        if task_list is None:
-            print(f"No tasks for {self.name}")
-        # for task in task_list:
-        #     print(task)
-
         # 跳转删除页面
         self.deleteWindow = Ui_Delete(name=globals.login_user.get_username(), task_list=globals.tasks)
         self.deleteWindow.taskCreated.connect(self.updateHomeTasks)
