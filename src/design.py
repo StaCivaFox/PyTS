@@ -11,14 +11,18 @@
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
+from login import *
+from task import Task
 from ui_create import Ui_Create
 from ui_readAndUpdate import Ui_ReadAndUpdate
-from login import *
 from ui_delete import Ui_Delete
+from ui_reminder import ReminderWidget
+
 
 class Ui_MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, name):
         QMainWindow.__init__(self)
+        self.name = name
         self.setupUi(self)
 
     def setupUi(self, MainWindow):
@@ -48,6 +52,9 @@ class Ui_MainWindow(QMainWindow):
         self.page_4 = QWidget()
         self.page_4.setObjectName("page_4")
         self.stackedWidget.addWidget(self.page_4)
+        self.reminderWidget = ReminderWidget(self.get_tasks())
+        self.reminderWidget.setObjectName("reminderWidget")
+        self.stackedWidget.addWidget(self.reminderWidget)
         self.stackedWidget.setCurrentIndex(1)
 
         self.verticalFrame2 = QFrame(self.page_4)
@@ -109,11 +116,12 @@ class Ui_MainWindow(QMainWindow):
         icon4 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.EditDelete))
         self.deleteButton.setIcon(icon4)
         self.horizontalLayout_2.addWidget(self.deleteButton)
-        #实现button与其他行为的关联
+        # 实现button与其他行为的关联
         self.createButton.clicked.connect(self.clickCreateButton)
         self.deleteButton.clicked.connect(self.clickDeleteButton)
         self.homeButton.clicked.connect(self.switchPage)
         self.calendarButton.clicked.connect(self.switchPage)
+        self.reminderButton.clicked.connect(self.switchPage)
 
     def initLayout(self):
         self.verticalLayout = QVBoxLayout(self.centralwidget)
@@ -170,8 +178,11 @@ class Ui_MainWindow(QMainWindow):
             print(f"No tasks for {self.name}")
             return
         task_list = get_task(task_tuple)
+        for task in task_list:
+            print(task)
         # 删除所有的后，重新逐行显示
         self.tableWidget.clear()
+        self.tableWidget.setRowCount(len(task_list))
         for row_idx, task in enumerate(task_list):
             self.tableWidget.setItem(row_idx, 0, QTableWidgetItem(task.title))
             self.tableWidget.setItem(row_idx, 1, QTableWidgetItem(str(task.priority)))
@@ -207,7 +218,7 @@ class Ui_MainWindow(QMainWindow):
     def clickTable(self):
         row = self.tableWidget.currentRow()
         if row > -1:
-            taskname = self.tableWidget.item(row, 0)#获取任务名字，从数据库中get相关信息并展示，展示一个类似create的弹窗
+            taskname = self.tableWidget.item(row, 0)  # 获取任务名字，从数据库中get相关信息并展示，展示一个类似create的弹窗
             self.readAndUpdateWindow = Ui_ReadAndUpdate()
             # 通过用户名和任务名获取任务
             task = search_schedule_by_title(self.name, taskname)
@@ -217,29 +228,9 @@ class Ui_MainWindow(QMainWindow):
 
     #delete弹出新窗口，展示所有任务，在任务的右边显示check box， 选后点击确认将所有选中的任务删除，取消直接退出
     def clickDeleteButton(self):
-        ##########################################  test  #############################################################
-        # 代替数据库初始化（测试用），使用时需替换为数据库版本
-        # tasks = [
-        #     Task("Task1", "High", "2023-04-01", "This is a task", "Not Started"),
-        #     Task("Task2", "Medium", "2023-04-02", "This is another task", "In Progress"),
-        #     Task("Task3", "Low", "2023-04-03", "This is a low priority task", "Completed")
-        # ]
-        # tasks = [
-        #     Task("Task1", 1, "2023-04-01", "This is a task", 5),
-        #     Task("Task2", 2, "2023-04-02", "This is another task", 6),
-        #     Task("Task3", 3, "2023-04-03", "This is a low priority task", 4)
-        # ]
-        # create_table(self.name)
-        # for task in tasks:
-        #     add_schedule(self.name, task)
-        ###############################################################################################################
-
-        # 获取任务列表
-        task_tuple = scan_schedule(self.name)
-        if task_tuple == ():
+        task_list = self.get_tasks()
+        if task_list is None:
             print(f"No tasks for {self.name}")
-            return
-        task_list = get_task(task_tuple)
         # for task in task_list:
         #     print(task)
 
@@ -271,23 +262,60 @@ class Ui_MainWindow(QMainWindow):
         ___qtablewidgetitem4.setText(QCoreApplication.translate("MainWindow", u"state", None))
     # retranslateUi
 
+    def get_tasks(self):
+        # 获取任务列表
+        conn, cursor = make_connect()
+        sql = 'SELECT * FROM {}'.format(self.name)
+        cursor.execute(sql)  # 执行查询操作
+        task_list = get_task(cursor.fetchall())  # 获取查询结果，并将元组转为列表
+        break_connect(conn, cursor)  # 关闭游标和连接
+        return task_list
+
+    def update_reminder_table(self):
+        task_list = self.get_tasks()
+        # for task in task_list:
+        #     print(task)
+        self.reminderWidget.change_tasks(task_list)
+        # print("set reminder widget ok")
+
     def switchPage(self):
         btn = self.sender()
-        if btn == self.homeButton: #点击的时候实现一次更新，将之前对task的操作同步到table上
+        if btn == self.homeButton:  # 点击的时候实现一次更新，将之前对task的操作同步到table上
             self.freshHomeTable()
             self.stackedWidget.setCurrentWidget(self.page_4)
         elif btn == self.calendarButton:
             self.stackedWidget.setCurrentWidget(self.page_3)
         elif btn == self.reminderButton:
-            pass
+            self.update_reminder_table()
+            # self.stackedWidget.setCurrentWidget(self.reminderWidget)  # why doesn't widget work??
+            # print("switch curWidget to reminder")
+            self.stackedWidget.setCurrentIndex(2)  # why index ok??
+            # self.reminderWidget.show()
         elif btn == self.schedulerButton:
             pass
 
 
 if __name__ == '__main__':
+
+    username = input("Your username: ")
+
+    ##########################################  test  #############################################################
+    # 初始化数据库(正式版需全部注释)
+    # tasks = [
+    #     Task("Task1", 4, "2024-07-27", "This is an urgent task", 1),
+    #     Task("Task3", 1, "2024-07-27", "This is a low priority task", 3),
+    #     Task("Task5", 2, "2024-07-28", "This is a medium priority task", 4),
+    #     Task("Task7", 1, "2024-07-28", "This is a low priority task", 3),
+    #     Task("Task6", 3, "2024-07-28", "This is a high priority task", 2),
+    #     Task("Task2", 3, "2024-07-27", "This is a high priority task", 4),
+    #     Task("Task4", 2, "2024-07-27", "This is a medium priority task", 1),
+    # ]
+    # # create_table(self.name)  # 若table已存在不执行此句
+    # for task in tasks:
+    #     add_schedule(username, task)
+    ###############################################################################################################
+
     app = QApplication([])
-    mainWindow = Ui_MainWindow()
+    mainWindow = Ui_MainWindow(username)
     mainWindow.show()
     app.exec()
-
-
