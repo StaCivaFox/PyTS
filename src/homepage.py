@@ -20,6 +20,7 @@ import globals
 from ui_delete import *
 from user import *
 from ui_reminder import *
+from ui_date import Ui_Date
 
 def is_valid_datetime(date_string, date_format="%Y-%m-%d %H:%M:%S"):
     try:
@@ -203,19 +204,23 @@ class Ui_MainWindow(QMainWindow):
         self.calendarWidget.setObjectName("calendarWidget")
         self.calendarWidget.setGeometry(QRect(0, 10, 821, 571))
         self.calendarWidget.clicked.connect(self.clickCalendar)
+        self.calendarWidget.setMinimumDate(QDate(2000, 1, 1))
+        self.calendarWidget.setMaximumDate(QDate(2099, 12, 31))
 
     def clickCalendar(self):
-        date = self.calendarWidget.selectedDate()
-        # 实现与数据库等待连接，将date传入，获得当天的日程
-        print(date)
-        pass
+        qdate = self.calendarWidget.selectedDate()
+        #实现与数据库等待连接，将date传入，获得当天的日程
+        date = datetime.combine(qdate.toPython(), datetime.min.time())  # Convert to datetime object
+        task_list = search_schedule_by_date(globals.login_user.get_username(), date)
+        taskList = sort_schedules_by_deadline(task_list)
+        self.dateWindow = Ui_Date()
+        self.dateWindow.getTaskList(taskList)
+        self.dateWindow.show()
 
     def clickCreateButton(self):
         self.createWindow = Ui_Create()
         self.createWindow.taskCreated.connect(self.updateHomeTasks)
         self.createWindow.show()
-        # 获取填的信息并导入数据库,并将改动同步到homeTable中
-        pass
 
     # read 和 update功能直接合并，取消二者的按钮，直接再表格中选中点击实现查看修改功能
     def clickTable(self):
@@ -224,7 +229,7 @@ class Ui_MainWindow(QMainWindow):
             taskname = self.tableWidget.item(row, 0)  # 获取任务名字，从数据库中get相关信息并展示，展示一个类似create的弹窗
             self.readAndUpdateWindow = Ui_ReadAndUpdate()
             # 通过用户名和任务名获取任务
-            task = search_schedule_by_title(self.name, taskname)
+            task = search_schedule_by_title(globals.login_user.get_username(), taskname)
             # 下边这一行实现初始化显示，即read的功能
             self.readAndUpdateWindow.initWord(task.title, task.priority, task.deadline, task.description, task.state)
             self.readAndUpdateWindow.show()

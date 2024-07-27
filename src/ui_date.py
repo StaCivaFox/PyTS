@@ -113,15 +113,11 @@ class Ui_Date(QMainWindow):
         # 逐行显示
         for row_idx, task in enumerate(task_list):
             self.tableWidget.setItem(row_idx, 0, QTableWidgetItem(task.title))
-            self.tableWidget.setItem(row_idx, 1, QTableWidgetItem(str(task.priority)))
-            self.tableWidget.setItem(row_idx, 2, QTableWidgetItem(str(task.deadline)))
+            self.tableWidget.setItem(row_idx, 1, QTableWidgetItem(str(task.deadline)))
+            self.tableWidget.setItem(row_idx, 2, QTableWidgetItem(str(task.priority)))
             self.tableWidget.setItem(row_idx, 3, QTableWidgetItem(task.description))
             self.tableWidget.setItem(row_idx, 4, QTableWidgetItem(str(task.state)))
         self.tableWidget.resizeColumnsToContents()  # 调整列宽以适应内容
         min_width = 50
         for i in range(self.tableWidget.columnCount()):  # 设置最小列宽
             self.tableWidget.setColumnWidth(i, max(min_width, self.tableWidget.columnWidth(i)))
-
-
-def ui_date_init():
-    return Ui_Date()
