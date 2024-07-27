@@ -53,6 +53,7 @@ class ReminderWidget(QWidget):
         self.table_widget.setRowCount(0)  # 清空表格
         selected_tasks = []
         # 筛选任务（今日及今日后，指定日期前）
+        #FIXME:当选择的日期已经过了截止日期，却仍然显示在表格中
         for task in self.task_list:
             if date.today() <= task.deadline.date() <= chosen_date and task.state != 'completed':
                 selected_tasks.append(task)

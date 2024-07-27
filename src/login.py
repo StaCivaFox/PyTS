@@ -116,7 +116,7 @@ def add_schedule(name,task):
         return True, "添加任务成功！\n"
     else:
         break_connect(conn,cursor) # 关闭游标和连接  
-        return False, "任务已存在！\n"
+        return False, "Task already exists！\n"
 
 
 def edit_schedule_priority(name,task,priority):
@@ -245,13 +245,17 @@ def search_schedule_by_title(name,title): # 根据标题查任务(may be useless
     conn,cursor = make_connect()
     sql = "SELECT * FROM {} WHERE title = '{}'".format(name,title)
     cursor.execute(sql) # 执行查询操作
-    result = cursor.fetchall() # 获取查询结果，返回元组
+    #由于标题不能重复，fetchone即可
+    result = cursor.fetchone() # 获取查询结果，返回元组
     # from datetime import datetime  
     # custom_tuple = (result[0][3].year, result[0][3].month, result[0][3].day, result[0][3].hour, result[0][3].minute) 
     # ans = list(result[0])
     # ans[3] = custom_tuple
     # return tuple(ans)
-    task = Task(result[0][1], result[0][2], result[0][3], result[0][4], result[0][5])
+    if result == None:
+        break_connect(conn,cursor)
+        return None
+    task = Task(result[1], result[2], result[3], result[4], result[5])
     break_connect(conn,cursor) # 关闭游标和连接
     return task
 
@@ -261,9 +265,10 @@ def delete_schedule(name,task): # 删掉任务
     sql = "SELECT * FROM {} where title = '{}'".format(name,task.title)  
     cursor.execute(sql) # 执行查询操作
     result = cursor.fetchall() # 获取查询结果，返回元组
+    task_title = task.get_title()
     if len(result) == 0:
         #print('None')
-        return False, "Task " + task.title + " does not exist!"
+        return False, "Task " + task_title + " does not exist!"
     else:
         sql = "DELETE FROM {} where title = '{}'".format(name,task.title)
         #yes = input("你确定要删除任务？Yes or No")
@@ -273,7 +278,7 @@ def delete_schedule(name,task): # 删掉任务
         #else:
         #    print('操作取消')
         break_connect(conn,cursor) # 关闭游标和连接
-        return True, "Task" + task.title + "Successfully deleted."
+        return True, "Task" + task_title + "Successfully deleted."
     
 
 ##############################################################################################

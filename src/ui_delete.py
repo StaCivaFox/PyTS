@@ -11,15 +11,16 @@
 from PySide6.QtCore import *
 from PySide6.QtWidgets import *
 from login import *
+import globals
 
 
 class Ui_Delete(QMainWindow):
-    taskCreated = Signal()
+    taskDeleted = Signal()
 
-    def __init__(self, task_list, name):
+    def __init__(self):
         super().__init__()
-        self.name = name
-        self.task_list = task_list
+        #self.name = name
+        #self.task_list = task_list
         self.selected_tasks = []
         self.setupUi(self)
 
@@ -41,7 +42,7 @@ class Ui_Delete(QMainWindow):
         # 支持多选
         self.task_table.setSelectionBehavior(QTableWidget.SelectRows)
 
-        self.task_table.setRowCount(len(self.task_list))
+        self.task_table.setRowCount(len(globals.tasks))
         # 为表格设置水平表头项
         __qtablewidgetitem = QTableWidgetItem()
         self.task_table.setHorizontalHeaderItem(0, __qtablewidgetitem)
@@ -61,8 +62,8 @@ class Ui_Delete(QMainWindow):
         self.task_table.setSortingEnabled(False)
 
         # 逐行显示
-        self.task_table.clear()
-        for row_idx, task in enumerate(self.task_list):
+        self.task_table.setShowGrid(True)
+        for row_idx, task in enumerate(globals.tasks):
             self.task_table.setItem(row_idx, 0, QTableWidgetItem(task.title))
             self.task_table.setItem(row_idx, 1, QTableWidgetItem(str(task.priority)))
             self.task_table.setItem(row_idx, 2, QTableWidgetItem(str(task.deadline)))
@@ -138,37 +139,34 @@ class Ui_Delete(QMainWindow):
         # print("Selected task titles:", selected_titles)
 
         # 在数据库中根据title删除选中的任务
-        conn, cursor = make_connect()
-        name = self.name
+        #Ask if the user is sure about deleting the task(s)
+        reply = QMessageBox.question(self, "Warning", "Are you sure you want to delete the selected task(s)?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.No:
+            return
         for title in selected_titles:
-            sql = "SELECT * FROM {} where title = '{}'".format(name, title)
-            cursor.execute(sql)  # 执行查询操作
-            result = cursor.fetchall()  # 获取查询结果，返回元组
-            if len(result) == 0:
-                print(f'No title named {title} in table {name}')
-            else:
-                sql = "DELETE FROM {} where title = '{}'".format(name, title)
-                cursor.execute(sql)
-                conn.commit()
-                print(f'user {name} delete task<{title}> successfully')
-        break_connect(conn, cursor)  # 关闭游标和连接
-
+            tmp_task = Task(title, 0, 0, "", 0)
+            result, msg = delete_schedule(globals.login_user.get_username(), tmp_task)
+            if not result:
+                QMessageBox.information(self, "Failed", msg + " Please make sure every task to be deleted already exists.", )
+                self.close()
         # scan_schedule(self.name)  # 删除后任务列表
-        self.taskCreated.emit()
+        QMessageBox.information(self, "Success", "Successfully deleted task(s).")
+        self.taskDeleted.emit()
         self.close()
+
 
     def retranslateUi(self, Delete_Window):
         Delete_Window.setWindowTitle(QCoreApplication.translate("Delete", u"DeleteWindow", None))
-        ___qtablewidgetitem = self.task_table.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("Delete", u"title", None))
-        ___qtablewidgetitem1 = self.task_table.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("Delete", u"priority", None))
-        ___qtablewidgetitem2 = self.task_table.horizontalHeaderItem(2)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("Delete", u"deadline", None))
-        ___qtablewidgetitem3 = self.task_table.horizontalHeaderItem(3)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("Delete", u"description", None))
-        ___qtablewidgetitem4 = self.task_table.horizontalHeaderItem(4)
-        ___qtablewidgetitem4.setText(QCoreApplication.translate("Delete", u"state", None))
+        #print(self.task_table.horizontalHeaderItem(0))
+        
+        self.task_table.horizontalHeaderItem(0).setText(QCoreApplication.translate("Delete", u"title", None))
+        
+        self.task_table.horizontalHeaderItem(1).setText(QCoreApplication.translate("Delete", u"priority", None))
+        
+        self.task_table.horizontalHeaderItem(2).setText(QCoreApplication.translate("Delete", u"deadline", None))
+        
+        self.task_table.horizontalHeaderItem(3).setText(QCoreApplication.translate("Delete", u"description", None))
+        self.task_table.horizontalHeaderItem(4).setText(QCoreApplication.translate("Delete", u"state", None))
         self.Ok_Button.setText(QCoreApplication.translate("Delete", u"Ok", None))
         self.Cancel_Button.setText(QCoreApplication.translate("Delete", u"Cancel", None))
         self.label.setText(QCoreApplication.translate("Delete", u"Select the task you want to delete by clicking the mouse, Ctrl+ click to achieve multiple selection", None))

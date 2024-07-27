@@ -61,7 +61,7 @@ class Ui_MainWindow(QMainWindow):
         self.page_4 = QWidget()
         self.page_4.setObjectName("page_4")
         self.stackedWidget.addWidget(self.page_4)
-        self.reminderWidget = ReminderWidget(globals.tasks)
+        self.reminderWidget = ReminderWidget()
         self.reminderWidget.setObjectName("reminderWidget")
         self.stackedWidget.addWidget(self.reminderWidget)
         self.stackedWidget.setCurrentIndex(1)
@@ -107,18 +107,19 @@ class Ui_MainWindow(QMainWindow):
         icon1 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.ListAdd))
         self.createButton.setIcon(icon1)
         self.horizontalLayout_2.addWidget(self.createButton)
-
+        '''
         self.readButton = QPushButton(self.horizontalFrame)
         self.readButton.setObjectName("readButton")
         icon2 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.EditFind))
         self.readButton.setIcon(icon2)
         self.horizontalLayout_2.addWidget(self.readButton)
-
+        
         self.updateButton = QPushButton(self.horizontalFrame)
         self.updateButton.setObjectName("updateButton")
         icon3 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.MailMessageNew))
         self.updateButton.setIcon(icon3)
         self.horizontalLayout_2.addWidget(self.updateButton)
+        '''
 
         self.deleteButton = QPushButton(self.horizontalFrame)
         self.deleteButton.setObjectName("deleteButton")
@@ -217,28 +218,33 @@ class Ui_MainWindow(QMainWindow):
         self.dateWindow.getTaskList(taskList)
         self.dateWindow.show()
 
+
     def clickCreateButton(self):
         self.createWindow = Ui_Create()
         self.createWindow.taskCreated.connect(self.updateHomeTasks)
         self.createWindow.show()
 
+
     # read 和 update功能直接合并，取消二者的按钮，直接再表格中选中点击实现查看修改功能
     def clickTable(self):
         row = self.tableWidget.currentRow()
         if row > -1:
-            taskname = self.tableWidget.item(row, 0)  # 获取任务名字，从数据库中get相关信息并展示，展示一个类似create的弹窗
-            self.readAndUpdateWindow = Ui_ReadAndUpdate()
+            taskname = self.tableWidget.item(row, 0).text()  # 获取任务名字，从数据库中get相关信息并展示，展示一个类似create的弹窗
+            #print(taskname)
             # 通过用户名和任务名获取任务
             task = search_schedule_by_title(globals.login_user.get_username(), taskname)
+            self.readAndUpdateWindow = Ui_ReadAndUpdate(task)
+            self.readAndUpdateWindow.taskUpdated.connect(self.updateHomeTasks)
             # 下边这一行实现初始化显示，即read的功能
-            self.readAndUpdateWindow.initWord(task.title, task.priority, task.deadline, task.description, task.state)
+            self.readAndUpdateWindow.initWord(task.title, str(task.priority), task.deadline.strftime("%Y-%m-%d %H:%M:%S"), task.description, task.state)
             self.readAndUpdateWindow.show()
+
 
     # delete弹出新窗口，展示所有任务，在任务的右边显示check box， 选后点击确认将所有选中的任务删除，取消直接退出
     def clickDeleteButton(self):
         # 跳转删除页面
-        self.deleteWindow = Ui_Delete(name=globals.login_user.get_username(), task_list=globals.tasks)
-        self.deleteWindow.taskCreated.connect(self.updateHomeTasks)
+        self.deleteWindow = Ui_Delete()
+        self.deleteWindow.taskDeleted.connect(self.updateHomeTasks)
         self.deleteWindow.show()
         # scan_schedule(self.name) # 删除前数据库任务列表
 
@@ -250,8 +256,8 @@ class Ui_MainWindow(QMainWindow):
         self.reminderButton.setText(QCoreApplication.translate("MainWindow", u"Reminder", None))
         self.schedulerButton.setText(QCoreApplication.translate("MainWindow", u"Scheduler", None))
         self.createButton.setText(QCoreApplication.translate("MainWindow", u"Create", None))
-        self.readButton.setText(QCoreApplication.translate("MainWindow", u"Read", None))
-        self.updateButton.setText(QCoreApplication.translate("MainWindow", u"Update", None))
+        #self.readButton.setText(QCoreApplication.translate("MainWindow", u"Read", None))
+        #self.updateButton.setText(QCoreApplication.translate("MainWindow", u"Update", None))
         self.deleteButton.setText(QCoreApplication.translate("MainWindow", u"Delete", None))
         ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Title", None))
@@ -265,8 +271,10 @@ class Ui_MainWindow(QMainWindow):
         ___qtablewidgetitem4.setText(QCoreApplication.translate("MainWindow", u"State", None))
     # retranslateUi
 
+
     def update_reminder_table(self):
         self.reminderWidget.change_tasks(globals.tasks)
+
 
     def switchPage(self):
         btn = self.sender()
