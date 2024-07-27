@@ -20,15 +20,8 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QDateEdit, QHBoxLayout,
     QPushButton, QSizePolicy, QStatusBar, QTextEdit,
     QWidget)
 from ui_inform import ui_inform_init
-from login import *
-from homepage import *
-from datetime import datetime
-from user import *
-from task import *
-import globals
 
-class Ui_Create(QMainWindow):
-    taskCreated = Signal()
+class Ui_ReadAndUpdate(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
         self.setupUi(self)
@@ -162,6 +155,7 @@ class Ui_Create(QMainWindow):
         MainWindow.setStatusBar(self.statusbar)
 
         self.initButton()
+        self.initWord()
         self.retranslateUi(MainWindow)
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -197,39 +191,23 @@ class Ui_Create(QMainWindow):
     def clickOkButton(self): #设置ok按钮的行为，具体来说是点击ok后，获取填的信息并导入数据库，将这几个框4的信息收集，删除当前名字的task并重新构建一个
         title = self.lineEdit.text()
         description = self.textEdit.toPlainText()
-        qdate = self.dateEdit.date()#返回是一个QDate对象，不想用这种形式可以toString或使用year()等方法获取具体年月日
-        #FIXME:直接用datetime.min.time()可能不妥
-        deadline = datetime.combine(qdate.toPython(), datetime.min.time())  # Convert to datetime object
+        deadline = self.dateEdit.date()#返回是一个QDate对象，不想用这种形式可以toString或使用year()等方法获取具体年月日
         priority = self.comboBox_2.currentText()#返回string类型
         state = self.comboBox.currentText()
         if title == '' or description == '':
-            #提示有字段未填写
-            QMessageBox.information(self, "Falied", "Title and Description can not be blank.")
-            #self.informWindow = ui_inform_init()
-            #self.informWindow.show()
-        else: # 连接数据库，先通过title看有没有重复的，有就先删再加（提示用户），没有直接加
-            new_task = Task(title, priority, deadline, description, state)
-            result, msg = add_schedule(globals.login_user.get_username(), new_task)
-            if result:
-                QMessageBox.information(self, "Success", "Successfully add task!")
-                self.taskCreated.emit()
-                self.close()
-            else:
-                reply = QMessageBox.question(self, 'Task Exists', 
-                                         "Task already exists. Do you want to replace it?", 
-                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-                if reply == QMessageBox.Yes:
-                    delete_schedule(globals.login_user.get_username(), new_task)
-                    result, msg = add_schedule(globals.login_user.get_username(), new_task)
-                    if result:
-                        QMessageBox.information(self, "Success", "Successfully replaced task!")
-                        self.taskCreated.emit()
-                        self.close()
-                    else:
-                        QMessageBox.information(self, "Failed", "Failed to replace task!")
-                else:
-                    QMessageBox.information(self, "Cancelled", "Task replacement cancelled.")
-            
+            self.informWindow = ui_inform_init()
+            self.informWindow.show()
+        else: # 连接数据库，先通过title看有没有重复的，有就先删再加，没有直接加
+            pass
+            self.close()
 
-def ui_create_init():
-    return Ui_Create()
+    def initWord(self, title, priority, deadline, description, state): #在show之前调用，获取那几项要提前展示的内容并设置
+        self.lineEdit.setText(title)
+        self.textEdit.setText(description)
+        self.dateEdit.dateTimeFromText(deadline)
+        self.comboBox.setCurrentText(state)
+        self.comboBox_2.setCurrentText(priority)
+
+
+def ui_readAndUpdate_init():
+    return Ui_ReadAndUpdate()

@@ -12,10 +12,13 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from ui_create import Ui_Create
-
+from ui_readAndUpdate import Ui_ReadAndUpdate
 from login import *
 from datetime import datetime
 from task import *
+import globals
+from ui_delete import *
+from user import *
 
 def is_valid_datetime(date_string, date_format="%Y-%m-%d %H:%M:%S"):
     try:
@@ -186,23 +189,58 @@ class Ui_MainWindow(QMainWindow):
 
     def clickCreateButton(self):
         self.createWindow = Ui_Create()
-        self.createWindow.pushButton_2.clicked.connect(self.createTask)
+        self.createWindow.taskCreated.connect(self.updateHomeTasks)
         self.createWindow.show()
         #获取填的信息并导入数据库,并将改动同步到homeTable中
-        
         pass
 
     #read 和 update功能直接合并，取消二者的按钮，直接再表格中选中点击实现查看修改功能
     def clickTable(self):
         row = self.tableWidget.currentRow()
-        print(row)
         if row > -1:
             name = self.tableWidget.item(row, 0)#获取任务名字，从数据库中get相关信息并展示，展示一个类似create的弹窗
-            pass
+            # 使用name从数据库获取相关任务
+            self.readAndUpdateWindow = Ui_ReadAndUpdate()
+            # 下边这一行实现初始化显示，即read的功能
+            self.readAndUpdateWindow.initWord()
+            self.readAndUpdateWindow.show()
 
     #delete弹出新窗口，展示所有任务，在任务的右边显示check box， 选后点击确认将所有选中的任务删除，取消直接退出
     def clickDeleteButton(self):
-        pass
+        ##########################################  test  #############################################################
+        # 代替数据库初始化（测试用），使用时需替换为数据库版本
+        # tasks = [
+        #     Task("Task1", "High", "2023-04-01", "This is a task", "Not Started"),
+        #     Task("Task2", "Medium", "2023-04-02", "This is another task", "In Progress"),
+        #     Task("Task3", "Low", "2023-04-03", "This is a low priority task", "Completed")
+        # ]
+        # tasks = [
+        #     Task("Task1", 1, "2023-04-01", "This is a task", 5),
+        #     Task("Task2", 2, "2023-04-02", "This is another task", 6),
+        #     Task("Task3", 3, "2023-04-03", "This is a low priority task", 4)
+        # ]
+        # create_table(self.name)
+        # for task in tasks:
+        #     add_schedule(self.name, task)
+        ###############################################################################################################
+
+        # 获取任务列表
+        #conn, cursor = make_connect()
+        #sql = 'SELECT * FROM {}'.format(self.name)
+        #cursor.execute(sql)  # 执行查询操作
+        #task_tuple = cursor.fetchall()  # 获取查询结果，返回元组
+        #break_connect(conn, cursor)  # 关闭游标和连接
+        #if task_tuple == ():
+        #    print(f"No tasks for {self.name}")
+        #    return
+        #task_list = get_task(task_tuple)
+        # for task in task_list:
+        #     print(task)
+
+        # 跳转删除页面
+        self.deleteWindow = Ui_Delete()
+        self.deleteWindow.show()
+        # scan_schedule(self.name) # 删除前数据库任务列表
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
@@ -229,8 +267,9 @@ class Ui_MainWindow(QMainWindow):
 
     def switchPage(self):
         btn = self.sender()
-        if btn == self.homeButton:
+        if btn == self.homeButton: #点击的时候实现一次更新，将之前对task的操作同步到table上
             self.stackedWidget.setCurrentWidget(self.page_4)
+            pass
         elif btn == self.calendarButton:
             self.stackedWidget.setCurrentWidget(self.page_3)
         elif btn == self.reminderButton:
@@ -241,16 +280,11 @@ class Ui_MainWindow(QMainWindow):
             pass
 
     
-    def homepageGetLoginUserAndTasks(self, login_user, tasks):
-        global home_login_user
-        global home_tasks
-        home_login_user = login_user
-        home_tasks = tasks
-
 
     def printTasks(self):
-        self.tableWidget.setRowCount(len(home_tasks))
-        for i, task in enumerate(home_tasks):
+        self.tableWidget.clearContents()
+        self.tableWidget.setRowCount(len(globals.tasks))
+        for i, task in enumerate(globals.tasks):
             self.tableWidget.setItem(i, 0, QTableWidgetItem(task.title))
             self.tableWidget.setItem(i, 1, QTableWidgetItem(str(task.deadline)))
             self.tableWidget.setItem(i, 2, QTableWidgetItem(task.description))
@@ -258,23 +292,11 @@ class Ui_MainWindow(QMainWindow):
             self.tableWidget.setItem(i, 4, QTableWidgetItem(str(task.state)))
         pass
 
-    '''
-    button push handlers
-    '''
-
-    def createTask(self):
-        title = self.createWindow.lineEdit.text()
-        description = self.createWindow.textEdit.toPlainText()
-        new_task = Task(title, 1, "2022-01-01", description, "ongoing")
-
-    def addTaskToDatabase(self, new_task):
-        res, msg = add_schedule(home_login_user, new_task)
-        print(msg)
-        self.updateHomeTasks()
-
 
     def updateHomeTasks(self):
-        home_tasks = scan_schedule(home_login_user)
+        globals.tasks = scan_schedule(globals.login_user.get_username())
+        for task in globals.tasks:
+            print(task)
         self.printTasks()
 
         

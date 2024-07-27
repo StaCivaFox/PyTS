@@ -1,9 +1,30 @@
 import pymysql
-from datetime import datetime
 from user import User
-from task import Task 
+from task import Task
 
-#################################### 数据库操作 ##############################################
+# def drop_table_if_exists(cursor, schema_name, table_name):  # 建立存储库
+#     # 注意：这里我们需要指定数据库名，因为 DROP TABLE 需要知道在哪个数据库中删除表  
+#     # 假设我们已经在 'log_info' 数据库中工作  
+#     sql = "DROP TABLE IF EXISTS `{}`.`{}`;".format(schema_name,table_name)
+#     cursor.execute(sql)  
+  
+def create_table(table_name):  # 建立个人存储内容表
+    conn,cursor = make_connect()
+    sql = """  
+    CREATE TABLE `log_info`.`{}` (  
+        `id` INT NOT NULL AUTO_INCREMENT,
+        `title` VARCHAR(45) NOT NULL,
+        `priority` INT NOT NULL,
+        `deadline` DATETIME NOT NULL,
+        `description` TEXT NOT NULL,
+        `state` INT NOT NULL,
+        PRIMARY KEY(`id`)
+    );  
+    """.format(table_name)
+    cursor.execute(sql) 
+    conn.commit()
+
+
 def make_connect():     # 建立数据库连接
     conn = pymysql.connect(
         host='localhost',		# 主机名（或IP地址）
@@ -22,11 +43,7 @@ def make_connect():     # 建立数据库连接
 def break_connect(conn, cursor): # 断开数据库连接
     cursor.close()
     conn.close()
-##############################################################################################
 
-
-
-#################################### 登录操作 #################################################
 
 def add_person(name, password):   # 注册模块
     conn,cursor = make_connect()
@@ -43,7 +60,8 @@ def add_person(name, password):   # 注册模块
         return True, "注册成功！\n"
     else:
         break_connect(conn,cursor) # 关闭游标和连接  
-        return False, "User name already exists!\n"
+        return False, "User name already exists！\n"
+
 
 def judge_person(name, password):     #身份验证模块
     conn,cursor = make_connect()
@@ -53,7 +71,7 @@ def judge_person(name, password):     #身份验证模块
     if result == None:
         #print('None')
         break_connect(conn,cursor) # 关闭游标和连接
-        return False, "User does not exist!\n", None, None
+        return False, "User does not exist！\n", None, None
     else:
         if result[2] == password:
             #print("Yes")
@@ -62,11 +80,11 @@ def judge_person(name, password):     #身份验证模块
             cursor.execute(sql)
             user_tasks_info = cursor.fetchall()
             break_connect(conn,cursor) # 关闭游标和连接
-            return True, "Log in successfully!\n", result, user_tasks_info
+            return True, "Log in successfully！\n", result, user_tasks_info
         else:
             #print("No")
             break_connect(conn,cursor) # 关闭游标和连接
-            return False, "Password error!\n", None, None
+            return False, "Password error！\n", None, None
 
 
 def delete_person(name, password):    #注销模块
@@ -90,7 +108,7 @@ def delete_person(name, password):    #注销模块
     break_connect(conn,cursor) # 关闭游标和连接  
 
 
-def scan_login_table():   #注册表总览
+def scan_all_table():   #注册表总览
     conn,cursor = make_connect()
     sql = 'SELECT * FROM login'
     cursor.execute(sql) # 执行查询操作
@@ -192,7 +210,7 @@ def scan_schedule(name):
     #for row in result:
     #    print(row)
     break_connect(conn,cursor) # 关闭游标和连接
-    return result
+    return get_task(result)
 
 
 def search_schedule_by_date(name,datetime): # 查询该日期之后截止的任务
@@ -262,16 +280,19 @@ def delete_schedule(name,task): # 删掉任务
     cursor.execute(sql) # 执行查询操作
     result = cursor.fetchall() # 获取查询结果，返回元组
     if len(result) == 0:
-        print('None')
+        #print('None')
+        return False, "Task " + task.title + " does not exist!"
     else:
         sql = "DELETE FROM {} where title = '{}'".format(name,task.title)
-        yes = input("你确定要删除任务？Yes or No")
-        if yes == 'Yes':
-            cursor.execute(sql)
-            conn.commit()
-        else:
-            print('操作取消')
-    break_connect(conn,cursor) # 关闭游标和连接
+        #yes = input("你确定要删除任务？Yes or No")
+        #if yes == 'Yes':
+        cursor.execute(sql)
+        conn.commit()
+        #else:
+        #    print('操作取消')
+        break_connect(conn,cursor) # 关闭游标和连接
+        return True, "Task" + task.title + "Successfully deleted."
+    
 
 ##############################################################################################
 
@@ -329,6 +350,7 @@ def create_table(table_name):  # 建立个人存储内容表
 
 
 ######################################## 本地验证 ###############################################
+'''
 if __name__ == '__main__':
     
     f = int(input()) # 操作数1\2\3\4
@@ -357,71 +379,4 @@ if __name__ == '__main__':
         password = input("输入密码")
         if judge_person(name,password):
             create_table(name)
-    elif f == 6:
-        name = input('输入名字')
-        title = input('输入标题')
-        priority = input('输入优先级')
-        year,month,day,hour,minute = input('输入年 月 日 小时 分钟').split(' ')
-        deadline = '{}-{}-{} {}:{}:00'.format(year,month,day,hour,minute)
-        description = input('输入描述')
-        state = input('输入状态')
-        task0 = Task(title, priority, deadline, description, state)
-        add_schedule(name,task0)
-
-    elif f == 7:
-        name = input('输入名字')
-        title = input('输入标题')
-        delete_schedule(name,title)
-    
-    elif f == 8:
-        name = input('输入名字')
-        title = input('输入标题')
-        priority = input('输入优先级')
-        year,month,day,hour,minute = input('输入年 月 日 小时 分钟').split(' ')
-        deadline = '{}-{}-{} {}:{}:00'.format(year,month,day,hour,minute)
-        description = input('输入描述')
-        state = input('输入状态')
-        task0 = Task(title, priority, deadline, description, state)
-        # edit_schedule_priority(name,task0,priority)
-        edit_schedule_deadline(name,task0,deadline)
-        # edit_schedule_description(name,task0,description)
-        # edit_schedule_state(name,task0,state)
-
-    elif f == 9:
-        name = input('输入名字')
-        scan_schedule(name)
-
-    elif f == 10:
-        name = input('输入名字')
-        title = input('输入标题')
-        search_schedule(name,title)
-
-    elif f == 11:
-        name = input('输入名字')
-        year,month,day,hour,minute = input('输入年 月 日 小时 分钟').split(' ')
-        date = '{}-{}-{} {}:{}:00'.format(year,month,day,hour,minute)
-        print(search_schedule_by_date(name,date))
-
-    elif f == 12:
-        # title = 'test'
-        # priority = '1'
-        # year,month,day,hour,minute = input('输入年 月 日 小时 分钟').split(' ')
-        # deadline = '{}-{}-{} {}:{}:00'.format(year,month,day,hour,minute)
-        # description = '123'
-        # state = '123'
-        task0 = search_schedule_by_title('KJH','123')
-
-        year,month,day,hour,minute = input('输入年 月 日 小时 分钟').split(' ')
-        now = '{}-{}-{} {}:{}:00'.format(year,month,day,hour,minute)
-        now = datetime.strptime(now, "%Y-%m-%d %H:%M:%S")
-        print(is_overdue(task0,now))
-
-    elif f == 13:
-        print('before:')
-        for i in search_schedule_by_date('KJH','1-12-12 0:0:0'):
-            print(i.title)
-
-        print('after:')
-        for i in sort_schedules(search_schedule_by_date('KJH','1-12-12 0:0:0')):
-            print(i.title)
-        
+'''

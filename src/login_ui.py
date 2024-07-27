@@ -4,6 +4,7 @@ from PySide6.QtWidgets import *
 
 from login import *
 from signup import *
+import globals
 
 class LoginUI(QMainWindow):
     def __init__(self):
@@ -41,20 +42,16 @@ class LoginUI(QMainWindow):
         self.central_widget.setLayout(self.layout)
 
     def login(self):
-        global username
-        global login_user
-        global tasks
-        global login_state
-        login_state = False
+        globals.login_state = False
         username = self.username_input.text()
         password = self.password_input.text()
-        result, login_user, tasks, msg = login_database(username, password)
+        result, globals.login_user, globals.tasks, msg = login_database(username, password)
         if result:
             QMessageBox.information(self, "Success", "Login successful. Welcome, " + username + "!")
             self.username_input.clear()
             self.password_input.clear()
             self.close()
-            login_state = True
+            globals.login_state = True
             #TODO: for debug; remove later
             '''
             print(login_user.username)
@@ -80,4 +77,4 @@ def login_window(app):
     window.show()
 
     app.exec()
-    return login_state, login_user, tasks
+    

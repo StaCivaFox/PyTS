@@ -5,3 +5,6 @@ class User():
         self.uid = uid
         self.username = username
         self.password = password
+
+    def get_username(self):
+        return self.username
