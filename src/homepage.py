@@ -22,12 +22,14 @@ from user import *
 from ui_reminder import *
 from ui_date import Ui_Date
 
+
 def is_valid_datetime(date_string, date_format="%Y-%m-%d %H:%M:%S"):
     try:
         datetime.strptime(date_string, date_format)
         return True
     except ValueError:
         return False
+
 
 class Ui_MainWindow(QMainWindow):
     def __init__(self):
@@ -113,7 +115,7 @@ class Ui_MainWindow(QMainWindow):
         icon2 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.EditFind))
         self.readButton.setIcon(icon2)
         self.horizontalLayout_2.addWidget(self.readButton)
-        
+
         self.updateButton = QPushButton(self.horizontalFrame)
         self.updateButton.setObjectName("updateButton")
         icon3 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.MailMessageNew))
@@ -158,8 +160,8 @@ class Ui_MainWindow(QMainWindow):
 
     def initHomeTable(self):
         self.tableWidget = QTableWidget(self.verticalFrame2)
-        if self.tableWidget.columnCount() < 5:
-            self.tableWidget.setColumnCount(5)
+        if self.tableWidget.columnCount() < 9:
+            self.tableWidget.setColumnCount(9)
         __qtablewidgetitem = QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(0, __qtablewidgetitem)
         __qtablewidgetitem1 = QTableWidgetItem()
@@ -170,6 +172,14 @@ class Ui_MainWindow(QMainWindow):
         self.tableWidget.setHorizontalHeaderItem(3, __qtablewidgetitem3)
         __qtablewidgetitem4 = QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(4, __qtablewidgetitem4)
+        __qtablewidgetitem5 = QTableWidgetItem()
+        self.tableWidget.setHorizontalHeaderItem(5, __qtablewidgetitem5)
+        __qtablewidgetitem6 = QTableWidgetItem()
+        self.tableWidget.setHorizontalHeaderItem(6, __qtablewidgetitem6)
+        __qtablewidgetitem7 = QTableWidgetItem()
+        self.tableWidget.setHorizontalHeaderItem(7, __qtablewidgetitem7)
+        __qtablewidgetitem8 = QTableWidgetItem()
+        self.tableWidget.setHorizontalHeaderItem(8, __qtablewidgetitem8)
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.tableWidget.setGridStyle(Qt.PenStyle.SolidLine)
@@ -187,10 +197,14 @@ class Ui_MainWindow(QMainWindow):
         self.tableWidget.setRowCount(len(globals.tasks))
         for row_idx, task in enumerate(globals.tasks):
             self.tableWidget.setItem(row_idx, 0, QTableWidgetItem(task.title))
-            self.tableWidget.setItem(row_idx, 1, QTableWidgetItem(str(task.priority)))
-            self.tableWidget.setItem(row_idx, 2, QTableWidgetItem(str(task.deadline)))
-            self.tableWidget.setItem(row_idx, 3, QTableWidgetItem(task.description))
-            self.tableWidget.setItem(row_idx, 4, QTableWidgetItem(str(task.state)))
+            self.tableWidget.setItem(row_idx, 1, QTableWidgetItem(task.style))
+            self.tableWidget.setItem(row_idx, 2, QTableWidgetItem(str(task.priority)))
+            self.tableWidget.setItem(row_idx, 3, QTableWidgetItem(str(task.daily)))
+            self.tableWidget.setItem(row_idx, 4, QTableWidgetItem(str(task.begin)))
+            self.tableWidget.setItem(row_idx, 5, QTableWidgetItem(str(task.deadline)))
+            self.tableWidget.setItem(row_idx, 6, QTableWidgetItem(str(task.expection)))
+            self.tableWidget.setItem(row_idx, 7, QTableWidgetItem(task.description))
+            self.tableWidget.setItem(row_idx, 8, QTableWidgetItem(str(task.state)))
         self.tableWidget.resizeColumnsToContents()  # 调整列宽以适应内容
         min_width = 50
         for i in range(self.tableWidget.columnCount()):  # 设置最小列宽
@@ -210,7 +224,7 @@ class Ui_MainWindow(QMainWindow):
 
     def clickCalendar(self):
         qdate = self.calendarWidget.selectedDate()
-        #实现与数据库等待连接，将date传入，获得当天的日程
+        # 实现与数据库等待连接，将date传入，获得当天的日程
         date = datetime.combine(qdate.toPython(), datetime.min.time())  # Convert to datetime object
         task_list = search_schedule_by_date(globals.login_user.get_username(), date)
         taskList = sort_schedules_by_deadline(task_list)
@@ -218,27 +232,25 @@ class Ui_MainWindow(QMainWindow):
         self.dateWindow.getTaskList(taskList)
         self.dateWindow.show()
 
-
     def clickCreateButton(self):
         self.createWindow = Ui_Create()
         self.createWindow.taskCreated.connect(self.updateHomeTasks)
         self.createWindow.show()
-
 
     # read 和 update功能直接合并，取消二者的按钮，直接再表格中选中点击实现查看修改功能
     def clickTable(self):
         row = self.tableWidget.currentRow()
         if row > -1:
             taskname = self.tableWidget.item(row, 0).text()  # 获取任务名字，从数据库中get相关信息并展示，展示一个类似create的弹窗
-            #print(taskname)
+            # print(taskname)
             # 通过用户名和任务名获取任务
             task = search_schedule_by_title(globals.login_user.get_username(), taskname)
             self.readAndUpdateWindow = Ui_ReadAndUpdate(task)
             self.readAndUpdateWindow.taskUpdated.connect(self.updateHomeTasks)
             # 下边这一行实现初始化显示，即read的功能
-            self.readAndUpdateWindow.initWord(task.title, str(task.priority), task.deadline.strftime("%Y-%m-%d %H:%M:%S"), task.description, task.state)
+            self.readAndUpdateWindow.initWord(task.title, str(task.priority),
+                                              task.deadline.strftime("%Y-%m-%d %H:%M:%S"), task.description, task.state)
             self.readAndUpdateWindow.show()
-
 
     # delete弹出新窗口，展示所有任务，在任务的右边显示check box， 选后点击确认将所有选中的任务删除，取消直接退出
     def clickDeleteButton(self):
@@ -250,31 +262,37 @@ class Ui_MainWindow(QMainWindow):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p align=\"center\"><span style=\" font-size:18pt; font-weight:700;\">PyTS App</span></p></body></html>", None))
+        self.label.setText(QCoreApplication.translate("MainWindow",
+                                                      u"<html><head/><body><p align=\"center\"><span style=\" font-size:18pt; font-weight:700;\">PyTS App</span></p></body></html>",
+                                                      None))
         self.homeButton.setText(QCoreApplication.translate("MainWindow", u"Home", None))
         self.calendarButton.setText(QCoreApplication.translate("MainWindow", u"Calendar", None))
         self.reminderButton.setText(QCoreApplication.translate("MainWindow", u"Reminder", None))
         self.schedulerButton.setText(QCoreApplication.translate("MainWindow", u"Scheduler", None))
         self.createButton.setText(QCoreApplication.translate("MainWindow", u"Create", None))
-        #self.readButton.setText(QCoreApplication.translate("MainWindow", u"Read", None))
-        #self.updateButton.setText(QCoreApplication.translate("MainWindow", u"Update", None))
+        # self.readButton.setText(QCoreApplication.translate("MainWindow", u"Read", None))
+        # self.updateButton.setText(QCoreApplication.translate("MainWindow", u"Update", None))
         self.deleteButton.setText(QCoreApplication.translate("MainWindow", u"Delete", None))
         ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Title", None))
-        ___qtablewidgetitem1 = self.tableWidget.horizontalHeaderItem(1)
+        ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(1)
+        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Style", None))
+        ___qtablewidgetitem1 = self.tableWidget.horizontalHeaderItem(2)
         ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"Priority", None))
-        ___qtablewidgetitem2 = self.tableWidget.horizontalHeaderItem(2)
+        ___qtablewidgetitem2 = self.tableWidget.horizontalHeaderItem(3)
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Daily", None))
+        ___qtablewidgetitem2 = self.tableWidget.horizontalHeaderItem(4)
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Begin", None))
+        ___qtablewidgetitem2 = self.tableWidget.horizontalHeaderItem(5)
         ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Deadline", None))
-        ___qtablewidgetitem3 = self.tableWidget.horizontalHeaderItem(3)
+        ___qtablewidgetitem3 = self.tableWidget.horizontalHeaderItem(6)
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"Duration", None))
+        ___qtablewidgetitem3 = self.tableWidget.horizontalHeaderItem(7)
         ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"Description", None))
-        ___qtablewidgetitem4 = self.tableWidget.horizontalHeaderItem(4)
+        ___qtablewidgetitem4 = self.tableWidget.horizontalHeaderItem(8)
         ___qtablewidgetitem4.setText(QCoreApplication.translate("MainWindow", u"State", None))
+
     # retranslateUi
-
-
-    def update_reminder_table(self):
-        self.reminderWidget.change_tasks(globals.tasks)
-
 
     def switchPage(self):
         btn = self.sender()
@@ -284,11 +302,9 @@ class Ui_MainWindow(QMainWindow):
         elif btn == self.calendarButton:
             self.stackedWidget.setCurrentWidget(self.page_3)
         elif btn == self.reminderButton:
-            self.update_reminder_table()
+            # self.update_reminder_table()
             # self.stackedWidget.setCurrentWidget(self.reminderWidget)  # why doesn't widget work??
-            # print("switch curWidget to reminder")
             self.stackedWidget.setCurrentIndex(2)  # why index ok??
-            # self.reminderWidget.show()
         elif btn == self.schedulerButton:
             # TODO
             pass
