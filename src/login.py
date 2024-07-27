@@ -9,7 +9,7 @@ def make_connect():     # 建立数据库连接
         host='localhost',		# 主机名（或IP地址）
         port=3306,				# 端口号，默认为3306
         user='root',			# 用户名
-        password='BUAA2024Python',	# 你本地的数据库密码,请自行更改
+        password='kjh030607',	# 你本地的数据库密码,请自行更改
         charset='utf8mb4'  		# 设置字符编码
     )
     conn.select_db("log_info") # 选择数据库
@@ -58,7 +58,7 @@ def judge_person(name, password):     #身份验证模块
         if result[2] == password:
             #print("Yes")
             #获取任务信息
-            sql = "SELECT * FROM {}".format(name)
+            sql = "SELECT * FROM `{}`".format(name)
             cursor.execute(sql)
             user_tasks_info = cursor.fetchall()
             break_connect(conn,cursor) # 关闭游标和连接
@@ -105,11 +105,11 @@ def scan_login_table():   #注册表总览
 #################################### 计划的增删改查以及排序 ########################################
 def add_schedule(name,task):
     conn,cursor = make_connect()
-    sql = "SELECT * FROM {} where title = '{}'".format(name,task.title)
+    sql = "SELECT * FROM `{}` where title = '{}'".format(name,task.title)
     cursor.execute(sql)
     result = cursor.fetchall() # 获取查询结果，返回元组
     if len(result) == 0:
-        sql = "INSERT INTO `log_info`.`{}` (`title`, `priority`, `deadline`, `description`, `state`) VALUES ('{}', '{}', '{}', '{}', '{}')".format(name,task.title,task.priority,task.deadline,task.description,task.state)
+        sql = "INSERT INTO `log_info`.`{}` (`title`, `style`, `priority`, `daily`, `begin`, `deadline`, `expection`, `description`, `state`) VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(name,task.title, task.style, task.priority, task.daily, task.begin, task.deadline, task.expection, task.description, task.state)
         cursor.execute(sql)
         conn.commit()
         break_connect(conn,cursor) # 关闭游标和连接  
@@ -118,14 +118,28 @@ def add_schedule(name,task):
         break_connect(conn,cursor) # 关闭游标和连接  
         return False, "任务已存在！\n"
 
+def edit_schedule_style(name,task,style):
+    conn,cursor = make_connect()
+    sql = "SELECT * FROM `{}` where title = '{}'".format(name,task.title)
+    cursor.execute(sql)
+    result = cursor.fetchall() # 获取查询结果，返回元组
+    if len(result) != 0:
+        sql = "UPDATE `{}` SET style = {} WHERE title = '{}'".format(name,style,task.title)
+        cursor.execute(sql)
+        conn.commit()
+        break_connect(conn,cursor) # 关闭游标和连接  
+        return True, "修改成功！\n"
+    else:
+        break_connect(conn,cursor) # 关闭游标和连接  
+        return False, "无此任务！\n"
 
 def edit_schedule_priority(name,task,priority):
     conn,cursor = make_connect()
-    sql = "SELECT * FROM {} where title = '{}'".format(name,task.title)
+    sql = "SELECT * FROM `{}` where title = '{}'".format(name,task.title)
     cursor.execute(sql)
     result = cursor.fetchall() # 获取查询结果，返回元组
     if len(result) != 0:
-        sql = "UPDATE {} SET priority = {} WHERE title = '{}'".format(name,priority,task.title)
+        sql = "UPDATE `{}` SET priority = {} WHERE title = '{}'".format(name,priority,task.title)
         cursor.execute(sql)
         conn.commit()
         break_connect(conn,cursor) # 关闭游标和连接  
@@ -134,15 +148,43 @@ def edit_schedule_priority(name,task,priority):
         break_connect(conn,cursor) # 关闭游标和连接  
         return False, "无此任务！\n"
 
+def edit_schedule_daily(name,task,daily):
+    conn,cursor = make_connect()
+    sql = "SELECT * FROM `{}` where title = '{}'".format(name,task.title)
+    cursor.execute(sql)
+    result = cursor.fetchall() # 获取查询结果，返回元组
+    if len(result) != 0:
+        sql = "UPDATE `{}` SET daily = '{}' WHERE title = '{}'".format(name,daily,task.title)
+        cursor.execute(sql)
+        conn.commit()
+        break_connect(conn,cursor) # 关闭游标和连接  
+        return True, "修改成功！\n"
+    else:
+        break_connect(conn,cursor) # 关闭游标和连接  
+        return False, "无此任务！\n"
+
+def edit_schedule_begin(name,task,begin):
+    conn,cursor = make_connect()
+    sql = "SELECT * FROM `{}` where title = '{}'".format(name,task.title)
+    cursor.execute(sql)
+    result = cursor.fetchall() # 获取查询结果，返回元组
+    if len(result) != 0:
+        sql = "UPDATE `{}` SET begin = '{}' WHERE title = '{}'".format(name,begin,task.title)
+        cursor.execute(sql)
+        conn.commit()
+        break_connect(conn,cursor) # 关闭游标和连接  
+        return True, "修改成功！\n"
+    else:
+        break_connect(conn,cursor) # 关闭游标和连接  
+        return False, "无此任务！\n"
 
 def edit_schedule_deadline(name,task,deadline):
     conn,cursor = make_connect()
-    sql = "SELECT * FROM {} where title = '{}'".format(name,task.title)
-    print(sql)
+    sql = "SELECT * FROM `{}` where title = '{}'".format(name,task.title)
     cursor.execute(sql)
     result = cursor.fetchall() # 获取查询结果，返回元组
     if len(result) != 0:
-        sql = "UPDATE {} SET deadline = '{}' WHERE title = '{}'".format(name,deadline,task.title)
+        sql = "UPDATE `{}` SET deadline = '{}' WHERE title = '{}'".format(name,deadline,task.title)
         cursor.execute(sql)
         conn.commit()
         break_connect(conn,cursor) # 关闭游标和连接  
@@ -151,14 +193,28 @@ def edit_schedule_deadline(name,task,deadline):
         break_connect(conn,cursor) # 关闭游标和连接  
         return False, "无此任务！\n"
 
-
-def edit_schedule_description(name,task,description):
+def edit_schedule_expetion(name,task,expection):
     conn,cursor = make_connect()
-    sql = "SELECT * FROM {} where title = '{}'".format(name,task.title)
+    sql = "SELECT * FROM `{}` where title = '{}'".format(name,task.title)
     cursor.execute(sql)
     result = cursor.fetchall() # 获取查询结果，返回元组
     if len(result) != 0:
-        sql = "UPDATE {} SET description = '{}' WHERE title = '{}'".format(name,description,task.title)
+        sql = "UPDATE `{}` SET expection = '{}' WHERE title = '{}'".format(name,expection,task.title)
+        cursor.execute(sql)
+        conn.commit()
+        break_connect(conn,cursor) # 关闭游标和连接  
+        return True, "修改成功！\n"
+    else:
+        break_connect(conn,cursor) # 关闭游标和连接  
+        return False, "无此任务！\n"
+
+def edit_schedule_description(name,task,description):
+    conn,cursor = make_connect()
+    sql = "SELECT * FROM `{}` where title = '{}'".format(name,task.title)
+    cursor.execute(sql)
+    result = cursor.fetchall() # 获取查询结果，返回元组
+    if len(result) != 0:
+        sql = "UPDATE `{}` SET description = '{}' WHERE title = '{}'".format(name,description,task.title)
         cursor.execute(sql)
         conn.commit()
         break_connect(conn,cursor) # 关闭游标和连接  
@@ -170,11 +226,11 @@ def edit_schedule_description(name,task,description):
 
 def edit_schedule_state(name,task,state):
     conn,cursor = make_connect()
-    sql = "SELECT * FROM {} where title = '{}'".format(name,task.title)
+    sql = "SELECT * FROM `{}` where title = '{}'".format(name,task.title)
     cursor.execute(sql)
     result = cursor.fetchall() # 获取查询结果，返回元组
     if len(result) != 0:
-        sql = "UPDATE {} SET state = {} WHERE title = '{}'".format(name,state,task.title)
+        sql = "UPDATE `{}` SET state = {} WHERE title = '{}'".format(name,state,task.title)
         cursor.execute(sql)
         conn.commit()
         break_connect(conn,cursor) # 关闭游标和连接  
@@ -186,7 +242,7 @@ def edit_schedule_state(name,task,state):
 
 def scan_schedule(name):
     conn,cursor = make_connect()
-    sql = 'SELECT * FROM {}'.format(name)
+    sql = 'SELECT * FROM `{}`'.format(name)
     cursor.execute(sql) # 执行查询操作
     result = cursor.fetchall() # 获取查询结果，返回元组
     #for row in result:
@@ -197,7 +253,7 @@ def scan_schedule(name):
 
 def search_schedule_by_date(name,datetime): # 查询该日期之后截止的任务
     conn,cursor = make_connect()
-    sql = "SELECT * FROM `{}` WHERE TIMESTAMPDIFF(MINUTE, CAST('{}' AS DATETIME), deadline) >= 0".format(name,datetime) 
+    sql = "SELECT * FROM `{}` WHERE TIMESTAMPDIFF(MINUTE, CAST('{}' AS DATETIME), deadline) >= 0 AND TIMESTAMPDIFF(MINUTE, CAST('{}' AS DATETIME), begin) < 0".format(name,datetime,datetime) 
     cursor.execute(sql) # 执行查询操作
     result = cursor.fetchall() # 获取查询结果，返回元组
     # from datetime import datetime    
@@ -208,12 +264,8 @@ def search_schedule_by_date(name,datetime): # 查询该日期之后截止的任�
     #     one[3] = custom_tuple
     # ans_tups = [tuple(lists) for lists in ans_lists]
     # return tuple(ans_tups)
-    ans = []
-    for one in result:
-        task = Task(one[1], one[2], one[3], one[4], one[5])
-        ans.append(task)
     break_connect(conn,cursor) # 关闭游标和连接
-    return tuple(ans)
+    return get_task(result)
     
 
 def sort_schedules(tasks): # 任务自动排序功能函数
@@ -240,10 +292,13 @@ def sort_schedules_by_priority(tasks): # 任务自动排序功能函数
 def is_overdue(task,now): # 任务是否超时函数: 如果当前时刻超过task截止日期了返回True,否则返回False
     return ((task.deadline - now).total_seconds() < 0)
 
+def is_begin(task,now): # 任务是否开始函数： 如果当前时刻超过tack开始日期了返回True,否则返回False
+    return ((task.begin - now).total_seconds() < 0)
+
 
 def search_schedule_by_title(name,title): # 根据标题查任务(may be useless)
     conn,cursor = make_connect()
-    sql = "SELECT * FROM {} WHERE title = '{}'".format(name,title)
+    sql = "SELECT * FROM `{}` WHERE title = '{}'".format(name,title)
     cursor.execute(sql) # 执行查询操作
     result = cursor.fetchall() # 获取查询结果，返回元组
     # from datetime import datetime  
@@ -251,21 +306,20 @@ def search_schedule_by_title(name,title): # 根据标题查任务(may be useless
     # ans = list(result[0])
     # ans[3] = custom_tuple
     # return tuple(ans)
-    task = Task(result[0][1], result[0][2], result[0][3], result[0][4], result[0][5])
     break_connect(conn,cursor) # 关闭游标和连接
-    return task
+    return get_task(result)[0]
 
 
 def delete_schedule(name,task): # 删掉任务
     conn,cursor = make_connect()
-    sql = "SELECT * FROM {} where title = '{}'".format(name,task.title)  
+    sql = "SELECT * FROM `{}` where title = '{}'".format(name,task.title)  
     cursor.execute(sql) # 执行查询操作
     result = cursor.fetchall() # 获取查询结果，返回元组
     if len(result) == 0:
         #print('None')
         return False, "Task " + task.title + " does not exist!"
     else:
-        sql = "DELETE FROM {} where title = '{}'".format(name,task.title)
+        sql = "DELETE FROM `{}` where title = '{}'".format(name,task.title)
         #yes = input("你确定要删除任务？Yes or No")
         #if yes == 'Yes':
         cursor.execute(sql)
@@ -289,7 +343,7 @@ def get_user(fet):      #获取用户对象
 def get_task(fet):      #获取任务对象
     ls = []
     for index in fet:
-        task = Task(title=index[1], priority=index[2], deadline=index[3], description=index[4], state=index[5])
+        task = Task(title=index[1], style= index[2], priority=index[3], daily= index[4], begin= index[5], deadline=index[6], expection= index[7], description=index[8], state=index[9])
         #task.set_id(index[0])
         ls.append(task)
 
@@ -317,8 +371,12 @@ def create_table(table_name):  # 建立个人存储内容表
     CREATE TABLE `log_info`.`{}` (  
         `id` INT NOT NULL AUTO_INCREMENT,
         `title` VARCHAR(45) NOT NULL,
+        `style` VARCHAR(45) NOT NULL,
         `priority` INT NOT NULL,
+        `daily` INT NOT NULL,
+        `begin` DATETIME NOT NULL,
         `deadline` DATETIME NOT NULL,
+        `expection` FLOAT NOT NULL,
         `description` TEXT NOT NULL,
         `state` INT NOT NULL,
         PRIMARY KEY(`id`)
@@ -353,22 +411,32 @@ if __name__ == '__main__':
         delete_person(name,password)
         
     elif f == 4: 
-        scan_all_table()    
+        scan_login_table() 
 
     elif f == 5:
         name = input('输入学号')
-        password = input("输入密码")
-        if judge_person(name,password):
-            create_table(name)
+        create_table(name)
+
     elif f == 6:
         name = input('输入名字')
         title = input('输入标题')
+        style = input('输入类型')
         priority = input('输入优先级')
-        year,month,day,hour,minute = input('输入年 月 日 小时 分钟').split(' ')
+        daily = input('是否是每日任务？0为否，1为是')
+
+        year,month,day,hour,minute = input('输入起始年 月 日 小时 分钟').split(' ')
+        begin = '{}-{}-{} {}:{}:00'.format(year,month,day,hour,minute)
+        # begin = '2024-7-27 0:0:0'
+
+        year,month,day,hour,minute = input('输入起始年 月 日 小时 分钟').split(' ')
         deadline = '{}-{}-{} {}:{}:00'.format(year,month,day,hour,minute)
+        # deadline = '2024-7-31 0:0:0'
+
+        expection = input('输入任务需要的小时数')
+
         description = input('输入描述')
         state = input('输入状态')
-        task0 = Task(title, priority, deadline, description, state)
+        task0 = Task(title, style, priority, daily, begin, deadline, expection, description, state)
         add_schedule(name,task0)
 
     elif f == 7:
@@ -379,25 +447,38 @@ if __name__ == '__main__':
     elif f == 8:
         name = input('输入名字')
         title = input('输入标题')
+        style = input('输入类型')
         priority = input('输入优先级')
+        daily = input('是否是每日任务？0为否，1为是')
+
+        year,month,day,hour,minute = input('输入起始年 月 日 小时 分钟').split(' ')
+        begin = '{}-{}-{} {}:{}:00'.format(year,month,day,hour,minute)
+
         year,month,day,hour,minute = input('输入年 月 日 小时 分钟').split(' ')
         deadline = '{}-{}-{} {}:{}:00'.format(year,month,day,hour,minute)
+
+        expection = input('输入任务需要的小时数')
         description = input('输入描述')
         state = input('输入状态')
-        task0 = Task(title, priority, deadline, description, state)
-        # edit_schedule_priority(name,task0,priority)
+        task0 = Task(title, style, priority, daily, begin, deadline, expection, description, state)
+
+        edit_schedule_style(name,task0,style)
+        edit_schedule_priority(name,task0,priority)
+        edit_schedule_daily(name,task0,daily)
+        edit_schedule_begin(name,task0,begin)
         edit_schedule_deadline(name,task0,deadline)
-        # edit_schedule_description(name,task0,description)
-        # edit_schedule_state(name,task0,state)
+        edit_schedule_expetion(name,task0,expection)
+        edit_schedule_description(name,task0,description)
+        edit_schedule_state(name,task0,state)
 
     elif f == 9:
         name = input('输入名字')
-        scan_schedule(name)
+        print(scan_schedule(name))
 
     elif f == 10:
         name = input('输入名字')
         title = input('输入标题')
-        search_schedule(name,title)
+        print(search_schedule_by_title(name,title))
 
     elif f == 11:
         name = input('输入名字')
@@ -412,19 +493,19 @@ if __name__ == '__main__':
         # deadline = '{}-{}-{} {}:{}:00'.format(year,month,day,hour,minute)
         # description = '123'
         # state = '123'
-        task0 = search_schedule_by_title('KJH','123')
-
+        task0 = search_schedule_by_title('21373456','123')
         year,month,day,hour,minute = input('输入年 月 日 小时 分钟').split(' ')
         now = '{}-{}-{} {}:{}:00'.format(year,month,day,hour,minute)
         now = datetime.strptime(now, "%Y-%m-%d %H:%M:%S")
+        print(is_begin(task0,now))
         print(is_overdue(task0,now))
 
     elif f == 13:
         print('before:')
-        for i in search_schedule_by_date('KJH','1-12-12 0:0:0'):
+        for i in search_schedule_by_date('21373456','2023-12-12 0:0:0'):
             print(i.title)
 
         print('after:')
-        for i in sort_schedules(search_schedule_by_date('KJH','1-12-12 0:0:0')):
+        for i in sort_schedules(search_schedule_by_date('21373456','2023-12-12 0:0:0')):
             print(i.title)
         
