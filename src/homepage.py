@@ -109,6 +109,7 @@ class Ui_MainWindow(QMainWindow):
         icon1 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.ListAdd))
         self.createButton.setIcon(icon1)
         self.horizontalLayout_2.addWidget(self.createButton)
+
         '''
         self.readButton = QPushButton(self.horizontalFrame)
         self.readButton.setObjectName("readButton")
@@ -193,7 +194,6 @@ class Ui_MainWindow(QMainWindow):
 
     def freshHomeTable(self):
         # 删除所有的后，重新逐行显示
-        self.tableWidget.clear()
         self.tableWidget.setRowCount(len(globals.tasks))
         for row_idx, task in enumerate(globals.tasks):
             self.tableWidget.setItem(row_idx, 0, QTableWidgetItem(task.title))
@@ -297,7 +297,7 @@ class Ui_MainWindow(QMainWindow):
     def switchPage(self):
         btn = self.sender()
         if btn == self.homeButton:  # 点击的时候实现一次更新，将之前对task的操作同步到table上
-            self.freshHomeTable()
+            self.printTasks()
             self.stackedWidget.setCurrentWidget(self.page_4)
         elif btn == self.calendarButton:
             self.stackedWidget.setCurrentWidget(self.page_3)
@@ -310,6 +310,9 @@ class Ui_MainWindow(QMainWindow):
             pass
 
     def printTasks(self):
+        # print("update tasks at", datetime.now())
+        # for task in globals.tasks:
+        #     print(task)
         self.freshHomeTable()
 
     def updateHomeTasks(self):
