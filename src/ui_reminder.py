@@ -54,7 +54,7 @@ class ReminderWidget(QWidget):
         selected_tasks = []
         # 筛选任务（今日及今日后，指定日期前）
         for task in self.task_list:
-            if date.today() <= task.deadline.date() <= chosen_date:
+            if date.today() <= task.deadline.date() <= chosen_date and task.state != 'completed':
                 selected_tasks.append(task)
         # 按deadline升序，priority降序
         selected_tasks.sort(reverse=False, key=lambda task: (task.deadline, -task.priority))
