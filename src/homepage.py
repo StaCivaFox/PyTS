@@ -12,12 +12,10 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from login import *
-from task import Task
+from task import *
+from datetime import datetime
 from ui_create import Ui_Create
 from ui_readAndUpdate import Ui_ReadAndUpdate
-from login import *
-from datetime import datetime
-from task import *
 import globals
 from ui_delete import *
 from user import *
@@ -52,7 +50,7 @@ class Ui_MainWindow(QMainWindow):
         self.verticalFrame1.setMaximumSize(QSize(100, 16777215))
         self.verticalFrame1.setAutoFillBackground(False)
 
-        #init stack and page
+        # init stack and page
         self.stackedWidget = QStackedWidget(self.verticalFrame)
         self.stackedWidget.setObjectName("stackedWidget")
         self.page_3 = QWidget()
@@ -62,7 +60,7 @@ class Ui_MainWindow(QMainWindow):
         self.page_4 = QWidget()
         self.page_4.setObjectName("page_4")
         self.stackedWidget.addWidget(self.page_4)
-        self.reminderWidget = ReminderWidget()
+        self.reminderWidget = ReminderWidget(globals.tasks)
         self.reminderWidget.setObjectName("reminderWidget")
         self.stackedWidget.addWidget(self.reminderWidget)
         self.stackedWidget.setCurrentIndex(1)
@@ -158,7 +156,7 @@ class Ui_MainWindow(QMainWindow):
 
     def initHomeTable(self):
         self.tableWidget = QTableWidget(self.verticalFrame2)
-        if (self.tableWidget.columnCount() < 5):
+        if self.tableWidget.columnCount() < 5:
             self.tableWidget.setColumnCount(5)
         __qtablewidgetitem = QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(0, __qtablewidgetitem)
@@ -177,10 +175,9 @@ class Ui_MainWindow(QMainWindow):
         self.tableWidget.setSortingEnabled(False)
         self.tableWidget.setAcceptDrops(False)
         self.tableWidget.setAutoFillBackground(False)
-        self.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows) #设置为整行选中
+        self.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)  # 设置为整行选中
 
         self.tableWidget.clicked.connect(self.clickTable)
-        
 
     def freshHomeTable(self):
         # 删除所有的后，重新逐行显示
@@ -197,7 +194,6 @@ class Ui_MainWindow(QMainWindow):
         for i in range(self.tableWidget.columnCount()):  # 设置最小列宽
             self.tableWidget.setColumnWidth(i, max(min_width, self.tableWidget.columnWidth(i)))
 
-
     def initLabel(self):
         self.label = QLabel(self.centralwidget)
         self.label.setObjectName("label")
@@ -210,7 +206,7 @@ class Ui_MainWindow(QMainWindow):
 
     def clickCalendar(self):
         date = self.calendarWidget.selectedDate()
-        #实现与数据库等待连接，将date传入，获得当天的日程
+        # 实现与数据库等待连接，将date传入，获得当天的日程
         print(date)
         pass
 
@@ -218,10 +214,10 @@ class Ui_MainWindow(QMainWindow):
         self.createWindow = Ui_Create()
         self.createWindow.taskCreated.connect(self.updateHomeTasks)
         self.createWindow.show()
-        #获取填的信息并导入数据库,并将改动同步到homeTable中
+        # 获取填的信息并导入数据库,并将改动同步到homeTable中
         pass
 
-    #read 和 update功能直接合并，取消二者的按钮，直接再表格中选中点击实现查看修改功能
+    # read 和 update功能直接合并，取消二者的按钮，直接再表格中选中点击实现查看修改功能
     def clickTable(self):
         row = self.tableWidget.currentRow()
         if row > -1:
@@ -233,7 +229,7 @@ class Ui_MainWindow(QMainWindow):
             self.readAndUpdateWindow.initWord(task.title, task.priority, task.deadline, task.description, task.state)
             self.readAndUpdateWindow.show()
 
-    #delete弹出新窗口，展示所有任务，在任务的右边显示check box， 选后点击确认将所有选中的任务删除，取消直接退出
+    # delete弹出新窗口，展示所有任务，在任务的右边显示check box， 选后点击确认将所有选中的任务删除，取消直接退出
     def clickDeleteButton(self):
         task_list = self.get_tasks()
         if task_list is None:
@@ -242,7 +238,8 @@ class Ui_MainWindow(QMainWindow):
         #     print(task)
 
         # 跳转删除页面
-        self.deleteWindow = Ui_Delete()
+        self.deleteWindow = Ui_Delete(name=globals.login_user.get_username(), task_list=globals.tasks)
+        self.deleteWindow.taskCreated.connect(self.updateHomeTasks)
         self.deleteWindow.show()
         # scan_schedule(self.name) # 删除前数据库任务列表
 
@@ -270,12 +267,7 @@ class Ui_MainWindow(QMainWindow):
     # retranslateUi
 
     def update_reminder_table(self):
-        #task_list = self.get_tasks()
-        # for task in task_list:
-        #     print(task)
-        #self.reminderWidget.change_tasks(task_list)
-        # print("set reminder widget ok")
-        pass
+        self.reminderWidget.change_tasks(globals.tasks)
 
     def switchPage(self):
         btn = self.sender()
@@ -291,24 +283,17 @@ class Ui_MainWindow(QMainWindow):
             self.stackedWidget.setCurrentIndex(2)  # why index ok??
             # self.reminderWidget.show()
         elif btn == self.schedulerButton:
-            #TODO
+            # TODO
             pass
-
-    
 
     def printTasks(self):
         self.freshHomeTable()
 
-
     def updateHomeTasks(self):
         globals.tasks = scan_schedule(globals.login_user.get_username())
-        #for task in globals.tasks:
+        # for task in globals.tasks:
         #    print(task)
         self.printTasks()
-
-        
-    
-
 
     '''
     def updateDatabase(self, item):
@@ -329,6 +314,7 @@ class Ui_MainWindow(QMainWindow):
             pass
         #print(row, column, value)
     '''
+
 
 '''
 if __name__ == '__main__':
@@ -356,5 +342,3 @@ if __name__ == '__main__':
     mainWindow.show()
     app.exec()
 '''
-
-
