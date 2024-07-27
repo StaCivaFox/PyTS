@@ -3,17 +3,14 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QListWidget, QApplication, 
                                QListWidgetItem, QLabel, QHBoxLayout, QDateEdit, QTableWidget, QTableWidgetItem)
 from PySide6.QtGui import QColor, QFont
 from datetime import datetime
-from task import Task
+import globals
 from datetime import date
+
 
 class ReminderWidget(QWidget):
     def __init__(self):
         super().__init__()
-        #self.task_list = task_list
         self.init_ui()
-
-    def change_tasks(self, tasks):
-        self.task_list = tasks
 
     def init_ui(self):
         layout = QVBoxLayout()
@@ -42,8 +39,9 @@ class ReminderWidget(QWidget):
 
         # 表格显示任务
         self.table_widget = QTableWidget()
-        self.table_widget.setColumnCount(5)
-        self.table_widget.setHorizontalHeaderLabels(['Title', 'Priority', 'Deadline', 'Description', 'State'])
+        self.table_widget.setColumnCount(9)
+        self.table_widget.setHorizontalHeaderLabels(['Title', 'Style', 'Priority', 'Daily', 'Begin', 'Deadline',
+                                                     'Duration', 'Description', 'State'])
         layout.addWidget(self.table_widget)
 
         self.setLayout(layout)
@@ -53,8 +51,7 @@ class ReminderWidget(QWidget):
         self.table_widget.setRowCount(0)  # 清空表格
         selected_tasks = []
         # 筛选任务（今日及今日后，指定日期前）
-        #FIXME:当选择的日期已经过了截止日期，却仍然显示在表格中
-        for task in self.task_list:
+        for task in globals.tasks:
             if date.today() <= task.deadline.date() <= chosen_date and task.state != 'completed':
                 selected_tasks.append(task)
         # 按deadline升序，priority降序
@@ -65,7 +62,8 @@ class ReminderWidget(QWidget):
             self.table_widget.insertRow(row_position)
             # 创建单元格并设置内容
             for column, content in enumerate(
-                    [task.title, task.priority, task.deadline.strftime('%Y-%m-%d'), task.description, task.state]):
+                    [task.title, task.style, task.priority, task.daily, task.begin.date(),
+                     task.deadline.date(), task.expection, task.description, task.state]):
                 item = QTableWidgetItem(str(content))
                 if task.deadline.date() == date.today():
                     # 设置当日任务颜色
