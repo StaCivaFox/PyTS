@@ -231,7 +231,3 @@ class Ui_ReadAndUpdate(QMainWindow):
         self.dateEdit.dateTimeFromText(deadline)
         self.comboBox.setCurrentText(state)
         self.comboBox_2.setCurrentText(priority)
-
-
-def ui_readAndUpdate_init():
-    return Ui_ReadAndUpdate()
