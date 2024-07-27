@@ -27,10 +27,11 @@ from login import *
 import globals
 
 class Ui_ReadAndUpdate(QMainWindow):
-    taskCreated = Signal()
-    def __init__(self):
+    taskUpdated = Signal()
+    def __init__(self, old_task):
         QMainWindow.__init__(self)
         self.setupUi(self)
+        self.old_task = old_task
 
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
@@ -186,12 +187,15 @@ class Ui_ReadAndUpdate(QMainWindow):
         self.comboBox.setItemText(3, QCoreApplication.translate("MainWindow", u"expired", None))
     # retranslateUi
 
+
     def initButton(self):
         self.pushButton.clicked.connect(self.clickCancelButton)
         self.pushButton_2.clicked.connect(self.clickOkButton)
 
+
     def clickCancelButton(self): #设置cancel按钮的行为，点击后关闭窗口
         self.close()
+
 
     def clickOkButton(self): #设置ok按钮的行为，具体来说是点击ok后，获取填的信息并导入数据库，将这几个框4的信息收集，删除当前名字的task并重新构建一个
         title = self.lineEdit.text()
@@ -203,27 +207,24 @@ class Ui_ReadAndUpdate(QMainWindow):
         if title == '' or description == '':
             QMessageBox.information(self, "Falied", "Title and Description can not be blank.")
         else: # 连接数据库，先通过title看有没有重复的，有就先删再加，没有直接加
+            #if title is being updated, delete the old one first
+            reply = QMessageBox.question(self, 'Update confirm',
+                                         "Do you want to update it?",
+                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if reply == QMessageBox.No:
+                return
+            old_task = self.old_task
             new_task = Task(title, priority, deadline, description, state)
+            if search_schedule_by_title(globals.login_user.get_username(), old_task.get_title()):
+                delete_schedule(globals.login_user.get_username(), old_task)
             result, msg = add_schedule(globals.login_user.get_username(), new_task)
             if result:
-                QMessageBox.information(self, "Success", "Successfully add task!")
-                self.taskCreated.emit()
+                QMessageBox.information(self, "Success", "Successfully updated task!")
+                self.taskUpdated.emit()
                 self.close()
             else:
-                reply = QMessageBox.question(self, 'Update confirm',
-                                         "Task already exists. Do you want to update it?",
-                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-                if reply == QMessageBox.Yes:
-                    delete_schedule(globals.login_user.get_username(), new_task)
-                    result, msg = add_schedule(globals.login_user.get_username(), new_task)
-                    if result:
-                        QMessageBox.information(self, "Success", "Successfully updated task!")
-                        self.taskCreated.emit()
-                        self.close()
-                    else:
-                        QMessageBox.information(self, "Failed", "Failed to update task!")
-                else:
-                    QMessageBox.information(self, "Cancelled", "Task update cancelled.")
+                QMessageBox.information(self, "Failed", "Failed to update task; " + msg)
+
 
     def initWord(self, title, priority, deadline, description, state): #在show之前调用，获取那几项要提前展示的内容并设置
         self.lineEdit.setText(title)

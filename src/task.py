@@ -15,3 +15,7 @@ class Task():
 
     def __str__(self) -> str:
         return f"{self.title} {self.style} {self.priority} {self.daily} {self.begin} {self.deadline} {self.expection} {self.description} {self.state}"
+    
+    
+    def get_title(self):
+        return self.title
