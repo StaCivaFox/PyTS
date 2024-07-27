@@ -14,7 +14,9 @@ from login import *
 
 
 class Ui_Delete(QMainWindow):
-    def __init__(self, name, task_list):
+    taskCreated = Signal()
+
+    def __init__(self, task_list, name):
         super().__init__()
         self.name = name
         self.task_list = task_list
@@ -59,6 +61,7 @@ class Ui_Delete(QMainWindow):
         self.task_table.setSortingEnabled(False)
 
         # 逐行显示
+        self.task_table.clear()
         for row_idx, task in enumerate(self.task_list):
             self.task_table.setItem(row_idx, 0, QTableWidgetItem(task.title))
             self.task_table.setItem(row_idx, 1, QTableWidgetItem(str(task.priority)))
@@ -147,10 +150,11 @@ class Ui_Delete(QMainWindow):
                 sql = "DELETE FROM {} where title = '{}'".format(name, title)
                 cursor.execute(sql)
                 conn.commit()
-                print(f'User {name} delete task<{title}> successfully')
+                print(f'user {name} delete task<{title}> successfully')
         break_connect(conn, cursor)  # 关闭游标和连接
 
         # scan_schedule(self.name)  # 删除后任务列表
+        self.taskCreated.emit()
         self.close()
 
     def retranslateUi(self, Delete_Window):
@@ -169,14 +173,3 @@ class Ui_Delete(QMainWindow):
         self.Cancel_Button.setText(QCoreApplication.translate("Delete", u"Cancel", None))
         self.label.setText(QCoreApplication.translate("Delete", u"Select the task you want to delete by clicking the mouse, Ctrl+ click to achieve multiple selection", None))
     # retranslateUi
-
-if __name__ == "__main__":
-    app = QApplication()
-    task_ls = []
-    task = Task("test", 1, "2024-02-02", "test", "ongoing")
-    task1 = Task("test1", 2, "2024-03-03", "test1", "unstarted")
-    task_ls.append(task)
-    task_ls.append(task1)
-    window = Ui_Delete("test", task_ls)
-    window.show()
-    app.exec()
