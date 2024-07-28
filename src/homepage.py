@@ -21,6 +21,7 @@ from ui_delete import *
 from user import *
 from ui_reminder import *
 from ui_date import Ui_Date
+from ui_create_new import Ui_Create_New
 
 
 def is_valid_datetime(date_string, date_format="%Y-%m-%d %H:%M:%S"):
@@ -232,10 +233,12 @@ class Ui_MainWindow(QMainWindow):
         self.dateWindow.getTaskList(taskList)
         self.dateWindow.show()
 
+
     def clickCreateButton(self):
-        self.createWindow = Ui_Create()
+        self.createWindow = Ui_Create_New()
         self.createWindow.taskCreated.connect(self.updateHomeTasks)
         self.createWindow.show()
+
 
     # read 和 update功能直接合并，取消二者的按钮，直接再表格中选中点击实现查看修改功能
     def clickTable(self):

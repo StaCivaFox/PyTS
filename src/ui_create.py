@@ -186,12 +186,15 @@ class Ui_Create(QMainWindow):
         self.comboBox.setItemText(3, QCoreApplication.translate("MainWindow", u"expired", None))
     # retranslateUi
 
+
     def initButton(self):
         self.pushButton.clicked.connect(self.clickCancelButton)
         self.pushButton_2.clicked.connect(self.clickOkButton)
 
+
     def clickCancelButton(self): #设置cancel按钮的行为，点击后关闭窗口
         self.close()
+
 
     def clickOkButton(self): #设置ok按钮的行为，具体来说是点击ok后，获取填的信息并导入数据库，将这几个框4的信息收集，删除当前名字的task并重新构建一个
         title = self.lineEdit.text()
@@ -229,6 +232,7 @@ class Ui_Create(QMainWindow):
                 else:
                     QMessageBox.information(self, "Cancelled", "Task replacement cancelled.")
             
+
 
 def ui_create_init():
     return Ui_Create()
