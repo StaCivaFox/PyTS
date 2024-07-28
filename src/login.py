@@ -118,6 +118,20 @@ def add_schedule(name,task):
         break_connect(conn,cursor) # 关闭游标和连接  
         return False, "任务已存在！\n"
 
+def get_and_update_state(name,task,now):
+    if not task.state == 2:
+        if not is_begin(task,now):
+            edit_schedule_state(name,task,0)
+            return 'unstarted'
+        elif is_begin(task,now) and not is_overdue(task,now):
+            edit_schedule_state(name,task,1)
+            return 'ongoing'
+        elif is_overdue(task,now):
+            edit_schedule_state(name,task,3)
+            return 'expired'
+    else:
+        return 'completed'
+
 def edit_schedule_style(name,task,style):
     conn,cursor = make_connect()
     sql = "SELECT * FROM `{}` where title = '{}'".format(name,task.title)
@@ -310,7 +324,8 @@ def search_schedule_by_title(name,title): # 根据标题查任务(may be useless
     break_connect(conn,cursor) # 关闭游标和连接
     if result == None:
         return None
-    return get_task(result)[0]
+    task = Task(result[1], result[2], result[3], result[4], result[5], result[6], result[7], result[8], result[9])
+    return task
 
 
 def delete_schedule(name,task): # 删掉任务
@@ -513,3 +528,6 @@ if __name__ == '__main__':
         for i in sort_schedules(search_schedule_by_date('21373456','2023-12-12 0:0:0')):
             print(i.title)
         
+    elif f == 14:
+        now = datetime.strptime('2022-10-11 0:0:0', "%Y-%m-%d %H:%M:%S")
+        print(get_and_update_state('21373456',search_schedule_by_title('21373456','123'),now))
