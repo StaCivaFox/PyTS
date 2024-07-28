@@ -373,7 +373,7 @@ if __name__ == '__main__':
     mainWindow.show()
     app.exec()
 '''
-app = QApplication([])
-mainWindow = Ui_MainWindow()
-mainWindow.show()
-app.exec()
+# app = QApplication([])
+# mainWindow = Ui_MainWindow()
+# mainWindow.show()
+# app.exec()
