@@ -238,13 +238,22 @@ def edit_schedule_description(name,task,description):
         return False, "无此任务！\n"
 
 
-def edit_schedule_state(name,task,state):
+def edit_schedule_state(name,task,state): # state为以下四种字符串之一
     conn,cursor = make_connect()
     sql = "SELECT * FROM `{}` where title = '{}'".format(name,task.title)
     cursor.execute(sql)
     result = cursor.fetchall() # 获取查询结果，返回元组
+    load = 0
+    if state == 'unstarted':
+        load = 0
+    elif state == 'ongoing':
+        load = 1
+    elif state == 'completed':
+        load = 2
+    elif state == 'expired':
+        load = 3
     if len(result) != 0:
-        sql = "UPDATE `{}` SET state = {} WHERE title = '{}'".format(name,state,task.title)
+        sql = "UPDATE `{}` SET state = {} WHERE title = '{}'".format(name,load,task.title)
         cursor.execute(sql)
         conn.commit()
         break_connect(conn,cursor) # 关闭游标和连接  
