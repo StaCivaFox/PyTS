@@ -188,6 +188,9 @@ class Ui_MainWindow(QMainWindow):
         self.tableWidget.setSortingEnabled(False)
         self.tableWidget.setAcceptDrops(False)
         self.tableWidget.setAutoFillBackground(False)
+        self.tableWidget.horizontalHeader().setStretchLastSection(True)
+        self.tableWidget.horizontalHeader().setMinimumSectionSize(24)
+        self.tableWidget.horizontalHeader().setDefaultSectionSize(87)
         self.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)  # 设置为整行选中
 
         self.tableWidget.clicked.connect(self.clickTable)
@@ -206,6 +209,8 @@ class Ui_MainWindow(QMainWindow):
             self.tableWidget.setItem(row_idx, 7, QTableWidgetItem(task.description))
             self.tableWidget.setItem(row_idx, 8, QTableWidgetItem(str(task.state)))
         self.tableWidget.resizeColumnsToContents()  # 调整列宽以适应内容
+        self.tableWidget.horizontalHeader().setMinimumSectionSize(24)
+        self.tableWidget.horizontalHeader().setDefaultSectionSize(87)
         min_width = 50
         for i in range(self.tableWidget.columnCount()):  # 设置最小列宽
             self.tableWidget.setColumnWidth(i, max(min_width, self.tableWidget.columnWidth(i)))
@@ -226,10 +231,8 @@ class Ui_MainWindow(QMainWindow):
         qdate = self.calendarWidget.selectedDate()
         # 实现与数据库等待连接，将date传入，获得当天的日程
         date = datetime.combine(qdate.toPython(), datetime.min.time())  # Convert to datetime object
-        task_list = search_schedule_by_date(globals.login_user.get_username(), date)
-        taskList = sort_schedules_by_deadline(task_list)
         self.dateWindow = Ui_Date()
-        self.dateWindow.getTaskList(taskList)
+        self.dateWindow.initDateWindow(date)
         self.dateWindow.show()
 
     def clickCreateButton(self):
@@ -368,3 +371,7 @@ if __name__ == '__main__':
     mainWindow.show()
     app.exec()
 '''
+# app = QApplication([])
+# mainWindow = Ui_MainWindow()
+# mainWindow.show()
+# app.exec()
