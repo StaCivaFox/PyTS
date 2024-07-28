@@ -143,7 +143,7 @@ class Ui_Date(QMainWindow):
         taskList = sort_schedules_by_deadline(task_list)
         task_list1 = []
         for task in taskList:
-            if task.begin.datetime() <= date <= task.deadline.datetime():
+            if task.begin <= date <= task.deadline:
                 task_list1.append(task)
         self.tableWidget.setRowCount(len(task_list1))
         # 逐行显示
