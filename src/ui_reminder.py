@@ -33,8 +33,8 @@ class ReminderWidget(QWidget):
         layout.addLayout(layout2)
 
         # 触发显示任务按钮
-        self.show_button = QPushButton("Show tasks before selected date")
-        self.show_button.clicked.connect(self.update_table)
+        self.show_button = QPushButton("Show tasks end before selected date")
+        self.show_button.clicked.connect(self.update_end_table)
         layout.addWidget(self.show_button)
 
         # 表格显示任务
@@ -44,9 +44,21 @@ class ReminderWidget(QWidget):
                                                      'Duration', 'Description', 'State'])
         layout.addWidget(self.table_widget)
 
+        # 触发显示任务按钮
+        self.show_button2 = QPushButton("Show tasks begin before selected date")
+        self.show_button2.clicked.connect(self.update_begin_table)
+        layout.addWidget(self.show_button2)
+
+        # 表格显示任务
+        self.table_widget2 = QTableWidget()
+        self.table_widget2.setColumnCount(9)
+        self.table_widget2.setHorizontalHeaderLabels(['Title', 'Style', 'Priority', 'Daily', 'Begin', 'Deadline',
+                                                     'Duration', 'Description', 'State'])
+        layout.addWidget(self.table_widget2)
+
         self.setLayout(layout)
 
-    def update_table(self):
+    def update_end_table(self):
         chosen_date = self.date_edit.date().toPython()
         self.table_widget.setRowCount(0)  # 清空表格
         selected_tasks = []
@@ -74,6 +86,34 @@ class ReminderWidget(QWidget):
 
                 self.table_widget.setItem(row_position, column, item)
 
+    def update_begin_table(self):
+        chosen_date = self.date_edit.date().toPython()
+        self.table_widget2.setRowCount(0)  # 清空表格
+        selected_tasks = []
+        # 筛选任务（今日及今日后，指定日期前）
+        for task in globals.tasks:
+            if date.today() <= task.begin.date() <= chosen_date and task.state != 'completed':
+                selected_tasks.append(task)
+        # 按deadline升序，priority降序
+        selected_tasks.sort(reverse=False, key=lambda task: (task.begin, -task.priority))
+        # 将任务添加到表格
+        for task in selected_tasks:
+            row_position = self.table_widget2.rowCount()
+            self.table_widget2.insertRow(row_position)
+            # 创建单元格并设置内容
+            for column, content in enumerate(
+                    [task.title, task.style, task.priority, task.daily, task.begin.date(),
+                     task.deadline.date(), task.expection, task.description, task.state]):
+                item = QTableWidgetItem(str(content))
+                if task.begin.date() == date.today():
+                    # 设置当日任务颜色
+                    item.setBackground(self.get_priority_color2(task.priority))
+                else:
+                    # 设置非当日任务的背景颜色为白色
+                    item.setBackground(QColor(255, 255, 255))
+
+                self.table_widget2.setItem(row_position, column, item)
+
     def get_priority_color(self, priority):
         # 根据优先级返回颜色
         colors = {
@@ -81,6 +121,16 @@ class ReminderWidget(QWidget):
             2: QColor(255, 165, 0),     # 橙色 - 中等优先级
             3: QColor(255, 0, 0),       # 红色 - 高优先级
             4: QColor(156, 0, 0)        # 深红色 - 紧急优先级
+        }
+        return colors.get(priority, QColor(255, 255, 255))  # 默认颜色为白色
+
+    def get_priority_color2(self, priority):
+        # 根据优先级返回颜色
+        colors = {
+            1: QColor(173, 216, 230),   # 淡蓝色
+            2: QColor(135, 206, 235),   # 天蓝色
+            3: QColor(100, 149, 237),   # 中蓝色
+            4: QColor(28, 134, 238),    # 深蓝色
         }
         return colors.get(priority, QColor(255, 255, 255))  # 默认颜色为白色
 
