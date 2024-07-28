@@ -27,7 +27,7 @@ class Ui_Delete(QMainWindow):
         if not Delete_Window.objectName():
             Delete_Window.setObjectName(u"Delete")
         # 设置窗口大小
-        Delete_Window.resize(533, 322)
+        Delete_Window.resize(833, 422)
         # 创建中央小部件并设置其对象名
         self.centralwidget = QWidget(Delete_Window)
         self.centralwidget.setObjectName(u"centralwidget")
@@ -62,7 +62,7 @@ class Ui_Delete(QMainWindow):
         self.task_table.setHorizontalHeaderItem(8, __qtablewidgetitem8)
         # 设置表格的几何形状和网格样式
         self.task_table.setObjectName(u"task_table_widget")
-        self.task_table.setGeometry(QRect(15, 11, 511, 261))
+        self.task_table.setGeometry(QRect(15, 11, 811, 361))
         self.task_table.setGridStyle(Qt.PenStyle.SolidLine)
         # 禁用表格的自动排序功能
         self.task_table.setSortingEnabled(False)
@@ -75,8 +75,8 @@ class Ui_Delete(QMainWindow):
             self.task_table.setItem(row_idx, 1, QTableWidgetItem(task.style))
             self.task_table.setItem(row_idx, 2, QTableWidgetItem(str(task.priority)))
             self.task_table.setItem(row_idx, 3, QTableWidgetItem(str(task.daily)))
-            self.task_table.setItem(row_idx, 4, QTableWidgetItem(str(task.begin)))
-            self.task_table.setItem(row_idx, 5, QTableWidgetItem(str(task.deadline)))
+            self.task_table.setItem(row_idx, 4, QTableWidgetItem(str(task.begin.date())))
+            self.task_table.setItem(row_idx, 5, QTableWidgetItem(str(task.deadline.date())))
             self.task_table.setItem(row_idx, 6, QTableWidgetItem(str(task.expection)))
             self.task_table.setItem(row_idx, 7, QTableWidgetItem(task.description))
             self.task_table.setItem(row_idx, 8, QTableWidgetItem(str(task.state)))
@@ -89,7 +89,7 @@ class Ui_Delete(QMainWindow):
         self.horizontalLayoutWidget = QWidget(self.centralwidget)
         self.horizontalLayoutWidget.setObjectName(u"horizontalLayoutWidget")
         # 设置布局小部件的位置和大小
-        self.horizontalLayoutWidget.setGeometry(QRect(350, 280, 171, 41))
+        self.horizontalLayoutWidget.setGeometry(QRect(600, 380, 220, 41))
         # 创建水平布局，并设置其对象名和内容边距
         self.horizontalLayout = QHBoxLayout(self.horizontalLayoutWidget)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
@@ -112,7 +112,7 @@ class Ui_Delete(QMainWindow):
         # 创建标签，提示用法
         self.label = QLabel(self.centralwidget)
         self.label.setObjectName(u"label")
-        self.label.setGeometry(QRect(10, 280, 341, 41))
+        self.label.setGeometry(QRect(60, 380, 341, 41))
         self.label.setFrameShape(QFrame.Shape.WinPanel)
         self.label.setScaledContents(False)
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
