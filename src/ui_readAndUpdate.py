@@ -283,7 +283,7 @@ class Ui_ReadAndUpdate(QMainWindow):
         title = self.lineEdit.text()
         description = self.textEdit.toPlainText()
         style = self.comboBox_3.currentText()  # 返回string类型
-        begin_time_qt = (self.dateTimeEdit_2.dateTime())  # 返回是一个QDateTime对象，不想用这种形式可以toString或使用time()等方法获取具体时分秒
+        begin_time_qt = self.dateTimeEdit_2.dateTime()  # 返回是一个QDateTime对象，不想用这种形式可以toString或使用time()等方法获取具体时分秒
         deadline_qt = self.dateTimeEdit.dateTime()
         begin_time = begin_time_qt.toPython()
         deadline = deadline_qt.toPython()
@@ -294,7 +294,7 @@ class Ui_ReadAndUpdate(QMainWindow):
             daily = 0
         expection = self.spinBox.value()
         priority = self.comboBox_2.currentText()  # 返回string类型
-        state = 0
+        state = self.comboBox.currentText()
         if (title == '' or description == '') or (begin_time > deadline):
             if title == '' or description == '':
                 QMessageBox.information(self, "Falied", "Title and Description can not be blank.")
