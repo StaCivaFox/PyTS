@@ -30,7 +30,14 @@ def is_valid_datetime(date_string, date_format="%Y-%m-%d %H:%M:%S"):
         return True
     except ValueError:
         return False
-
+    
+'''   
+def search_schedule_by_title_in_homepage(title):
+    for task in globals.tasks:
+        if task.title == title:
+            return task
+    return None
+'''
 
 class Ui_MainWindow(QMainWindow):
     def __init__(self):
@@ -162,8 +169,8 @@ class Ui_MainWindow(QMainWindow):
 
     def initHomeTable(self):
         self.tableWidget = QTableWidget(self.verticalFrame2)
-        if self.tableWidget.columnCount() < 9:
-            self.tableWidget.setColumnCount(9)
+        if self.tableWidget.columnCount() < 10:
+            self.tableWidget.setColumnCount(10)
         __qtablewidgetitem = QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(0, __qtablewidgetitem)
         __qtablewidgetitem1 = QTableWidgetItem()
@@ -182,6 +189,8 @@ class Ui_MainWindow(QMainWindow):
         self.tableWidget.setHorizontalHeaderItem(7, __qtablewidgetitem7)
         __qtablewidgetitem8 = QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(8, __qtablewidgetitem8)
+        __qtablewidgetitem9 = QTableWidgetItem()
+        self.tableWidget.setHorizontalHeaderItem(9, __qtablewidgetitem9)
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.tableWidget.setGridStyle(Qt.PenStyle.SolidLine)
@@ -196,24 +205,54 @@ class Ui_MainWindow(QMainWindow):
 
         self.tableWidget.clicked.connect(self.clickTable)
 
+
     def freshHomeTable(self):
         # 删除所有的后，重新逐行显示
+        self.tableWidget.clearContents()
         self.tableWidget.setRowCount(len(globals.tasks))
         for row_idx, task in enumerate(globals.tasks):
             print_state = get_and_update_state(globals.login_user.get_username(), task, datetime.now())
-            if task.daily == 0:
-                print_daily = "No"
+            globals.tasks = scan_schedule(globals.login_user.get_username())
+            print_daily = "Yes" if task.daily != 0 else "No"
+        
+            items = [
+                QTableWidgetItem(task.title),
+                QTableWidgetItem(task.style),
+                QTableWidgetItem(str(task.priority)),
+                QTableWidgetItem(print_daily),
+                QTableWidgetItem(str(task.begin)),
+                QTableWidgetItem(str(task.deadline)),
+                QTableWidgetItem(str(task.expection)),
+                QTableWidgetItem(task.description),
+                QTableWidgetItem(print_state)
+            ]
+        
+            for col_idx, item in enumerate(items, start=1):
+                item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+                self.tableWidget.setItem(row_idx, col_idx, item)
+            
+            if print_state == "unstarted":
+                color = QColor(128, 128, 128)  # Gray
+            elif print_state == "ongoing":
+                color = QColor(2, 242, 255)  # Blue
+            elif print_state == "completed":
+                color = QColor(125, 255, 111)  # Green
             else:
-                print_daily = "Yes"
-            self.tableWidget.setItem(row_idx, 0, QTableWidgetItem(task.title))
-            self.tableWidget.setItem(row_idx, 1, QTableWidgetItem(task.style))
-            self.tableWidget.setItem(row_idx, 2, QTableWidgetItem(str(task.priority)))
-            self.tableWidget.setItem(row_idx, 3, QTableWidgetItem(print_daily))
-            self.tableWidget.setItem(row_idx, 4, QTableWidgetItem(str(task.begin)))
-            self.tableWidget.setItem(row_idx, 5, QTableWidgetItem(str(task.deadline)))
-            self.tableWidget.setItem(row_idx, 6, QTableWidgetItem(str(task.expection)))
-            self.tableWidget.setItem(row_idx, 7, QTableWidgetItem(task.description))
-            self.tableWidget.setItem(row_idx, 8, QTableWidgetItem(print_state))
+                color = QColor(255, 102, 102)  # Red
+            
+            items[-1].setBackground(color)
+            checkbox = QCheckBox()
+            if print_state == "completed":
+                checkbox.setCheckState(Qt.CheckState.Checked)
+            print(f"Row {row_idx}: print_state={print_state}, checkbox checked={checkbox.isChecked()}")
+            checkbox.stateChanged.connect(lambda state, row=row_idx: self.checkTaskCompleted(state, row))
+            checkbox_widget = QWidget()
+            checkbox_layout = QHBoxLayout(checkbox_widget)
+            checkbox_layout.addWidget(checkbox)
+            checkbox_layout.setAlignment(Qt.AlignCenter)
+            checkbox_layout.setContentsMargins(0, 0, 0, 0)
+            self.tableWidget.setCellWidget(row_idx, 0, checkbox_widget)
+
         self.tableWidget.resizeColumnsToContents()  # 调整列宽以适应内容
         self.tableWidget.horizontalHeader().setMinimumSectionSize(24)
         self.tableWidget.horizontalHeader().setDefaultSectionSize(87)
@@ -221,9 +260,11 @@ class Ui_MainWindow(QMainWindow):
         for i in range(self.tableWidget.columnCount()):  # 设置最小列宽
             self.tableWidget.setColumnWidth(i, max(min_width, self.tableWidget.columnWidth(i)))
 
+
     def initLabel(self):
         self.label = QLabel(self.centralwidget)
         self.label.setObjectName("label")
+
 
     def initCalendar(self):
         self.calendarWidget = QCalendarWidget(self.page_3)
@@ -232,6 +273,26 @@ class Ui_MainWindow(QMainWindow):
         self.calendarWidget.clicked.connect(self.clickCalendar)
         self.calendarWidget.setMinimumDate(QDate(2000, 1, 1))
         self.calendarWidget.setMaximumDate(QDate(2099, 12, 31))
+
+
+    def checkTaskCompleted(self, state, row):
+        #print("enter checkTaskCompleted")
+        if state == Qt.CheckState.Checked:
+            print(f"Row {row}: checked")
+            taskname = self.tableWidget.item(row, 1).text()
+            task = search_schedule_by_title(globals.login_user.get_username(), taskname)
+            edit_schedule_state(globals.login_user.get_username(), task, "completed")
+            self.updateHomeTasks()
+        else:
+            print(f"Row {row}: unchecked")
+            #taskname = self.tableWidget.item(row, 1).text()
+            #task = search_schedule_by_title(globals.login_user.get_username(), taskname)
+            #task.state = 1
+            #edit_schedule_state(globals.login_user.get_username(), task, 1)
+            self.updateHomeTasks()
+            pass
+            
+
 
     def clickCalendar(self):
         qdate = self.calendarWidget.selectedDate()
@@ -252,7 +313,7 @@ class Ui_MainWindow(QMainWindow):
     def clickTable(self):
         row = self.tableWidget.currentRow()
         if row > -1:
-            taskname = self.tableWidget.item(row, 0).text()  # 获取任务名字，从数据库中get相关信息并展示，展示一个类似create的弹窗
+            taskname = self.tableWidget.item(row, 1).text()  # 获取任务名字，从数据库中get相关信息并展示，展示一个类似create的弹窗
             # print(taskname)
             # 通过用户名和任务名获取任务
             task = search_schedule_by_title(globals.login_user.get_username(), taskname)
@@ -285,23 +346,23 @@ class Ui_MainWindow(QMainWindow):
         # self.readButton.setText(QCoreApplication.translate("MainWindow", u"Read", None))
         # self.updateButton.setText(QCoreApplication.translate("MainWindow", u"Update", None))
         self.deleteButton.setText(QCoreApplication.translate("MainWindow", u"Delete", None))
-        ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Title", None))
         ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(1)
+        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Title", None))
+        ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(2)
         ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Style", None))
-        ___qtablewidgetitem1 = self.tableWidget.horizontalHeaderItem(2)
+        ___qtablewidgetitem1 = self.tableWidget.horizontalHeaderItem(3)
         ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"Priority", None))
-        ___qtablewidgetitem2 = self.tableWidget.horizontalHeaderItem(3)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Daily", None))
         ___qtablewidgetitem2 = self.tableWidget.horizontalHeaderItem(4)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Begin", None))
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Daily", None))
         ___qtablewidgetitem2 = self.tableWidget.horizontalHeaderItem(5)
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Begin", None))
+        ___qtablewidgetitem2 = self.tableWidget.horizontalHeaderItem(6)
         ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Deadline", None))
-        ___qtablewidgetitem3 = self.tableWidget.horizontalHeaderItem(6)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"Duration", None))
         ___qtablewidgetitem3 = self.tableWidget.horizontalHeaderItem(7)
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"Duration", None))
+        ___qtablewidgetitem3 = self.tableWidget.horizontalHeaderItem(8)
         ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"Description", None))
-        ___qtablewidgetitem4 = self.tableWidget.horizontalHeaderItem(8)
+        ___qtablewidgetitem4 = self.tableWidget.horizontalHeaderItem(9)
         ___qtablewidgetitem4.setText(QCoreApplication.translate("MainWindow", u"State", None))
 
     # retranslateUi
@@ -329,8 +390,8 @@ class Ui_MainWindow(QMainWindow):
 
     def updateHomeTasks(self):
         globals.tasks = scan_schedule(globals.login_user.get_username())
-        # for task in globals.tasks:
-        #    print(task)
+        for task in globals.tasks:
+            print(task)
         self.printTasks()
 
     '''

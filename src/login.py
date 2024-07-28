@@ -9,7 +9,7 @@ def make_connect():     # 建立数据库连接
         host='localhost',		# 主机名（或IP地址）
         port=3306,				# 端口号，默认为3306
         user='root',			# 用户名
-        password='kjh030607',	# 你本地的数据库密码,请自行更改
+        password='BUAA2024Python',	# 你本地的数据库密码,请自行更改
         charset='utf8mb4'  		# 设置字符编码
     )
     conn.select_db("log_info") # 选择数据库
@@ -118,19 +118,21 @@ def add_schedule(name,task):
         break_connect(conn,cursor) # 关闭游标和连接  
         return False, "任务已存在！\n"
 
+
 def get_and_update_state(name,task,now):
     if not task.state == 2:
         if not is_begin(task,now):
-            edit_schedule_state(name,task,0)
+            edit_schedule_state(name,task,"unstarted")
             return 'unstarted'
         elif is_begin(task,now) and not is_overdue(task,now):
-            edit_schedule_state(name,task,1)
+            edit_schedule_state(name,task,"ongoing")
             return 'ongoing'
         elif is_overdue(task,now):
-            edit_schedule_state(name,task,3)
+            edit_schedule_state(name,task,"expired")
             return 'expired'
     else:
         return 'completed'
+
 
 def edit_schedule_style(name,task,style):
     conn,cursor = make_connect()

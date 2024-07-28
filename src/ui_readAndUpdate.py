@@ -28,9 +28,10 @@ import globals
 
 class Ui_ReadAndUpdate(QMainWindow):
     taskUpdated = Signal()
-    def __init__(self):
+    def __init__(self, old_task):
         QMainWindow.__init__(self)
         self.setupUi(self)
+        self.old_task = old_task
 
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
@@ -213,14 +214,14 @@ class Ui_ReadAndUpdate(QMainWindow):
 
         self.horizontalLayout_6.addWidget(self.label_5)
 
-        self.comboBox = QComboBox(self.horizontalLayoutWidget_6)
-        self.comboBox.addItem("")
-        self.comboBox.addItem("")
-        self.comboBox.addItem("")
-        self.comboBox.addItem("")
-        self.comboBox.setObjectName(u"comboBox")
+        #self.comboBox = QComboBox(self.horizontalLayoutWidget_6)
+        #self.comboBox.addItem("")
+        #self.comboBox.addItem("")
+        #self.comboBox.addItem("")
+        #self.comboBox.addItem("")
+        #self.comboBox.setObjectName(u"comboBox")
 
-        self.horizontalLayout_6.addWidget(self.comboBox)
+        #self.horizontalLayout_6.addWidget(self.comboBox)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
@@ -262,11 +263,11 @@ class Ui_ReadAndUpdate(QMainWindow):
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"Estimated Hours Cost", None))
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Daily Task", None))
         self.checkBox.setText("")
-        self.label_5.setText(QCoreApplication.translate("MainWindow", u"State", None))
-        self.comboBox.setItemText(0, QCoreApplication.translate("MainWindow", u"unstarted", None))
-        self.comboBox.setItemText(1, QCoreApplication.translate("MainWindow", u"ongoing", None))
-        self.comboBox.setItemText(2, QCoreApplication.translate("MainWindow", u"completed", None))
-        self.comboBox.setItemText(3, QCoreApplication.translate("MainWindow", u"expired", None))
+        #self.label_5.setText(QCoreApplication.translate("MainWindow", u"State", None))
+        #self.comboBox.setItemText(0, QCoreApplication.translate("MainWindow", u"unstarted", None))
+        #self.comboBox.setItemText(1, QCoreApplication.translate("MainWindow", u"ongoing", None))
+        #self.comboBox.setItemText(2, QCoreApplication.translate("MainWindow", u"completed", None))
+        #self.comboBox.setItemText(3, QCoreApplication.translate("MainWindow", u"expired", None))
     # retranslateUi
 
 
@@ -278,7 +279,7 @@ class Ui_ReadAndUpdate(QMainWindow):
     def clickCancelButton(self): #设置cancel按钮的行为，点击后关闭窗口
         self.close()
 
-
+    #TODO: state不应提供4种选项，编辑窗口中删除这项，在主页面每条task后加框，打钩后状态变为completed.
     def clickOkButton(self):  # 设置ok按钮的行为，具体来说是点击ok后，获取填的信息并导入数据库，将这几个框4的信息收集，删除当前名字的task并重新构建一个
         title = self.lineEdit.text()
         description = self.textEdit.toPlainText()
@@ -294,7 +295,16 @@ class Ui_ReadAndUpdate(QMainWindow):
             daily = 0
         expection = self.spinBox.value()
         priority = self.comboBox_2.currentText()  # 返回string类型
-        state = self.comboBox.currentText()
+        #state_text = self.comboBox.currentText()
+        #if state_text == 'unstarted':
+        #    state = 0
+        #elif state_text == 'ongoing':
+        #    state = 1
+        #elif state_text == 'completed':
+        #    state = 2
+        #else:
+        #    state = 3
+        state = self.old_task.state
         if (title == '' or description == '') or (begin_time > deadline):
             if title == '' or description == '':
                 QMessageBox.information(self, "Falied", "Title and Description can not be blank.")
@@ -304,35 +314,54 @@ class Ui_ReadAndUpdate(QMainWindow):
                 # self.informWindow = ui_inform_init()
                 # self.informWindow.show()
         else:  # 连接数据库，先通过title看有没有重复的，有就先删再加（提示用户），没有直接加
+            reply = QMessageBox.question(self, 'Update confirm',
+                                         "Are you sure to update this task?",
+                                            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if reply == QMessageBox.No:
+                return
+            old_task = self.old_task
             new_task = Task(title, style, priority, daily, begin_time, deadline, expection, description, state)
-            result, msg = add_schedule(globals.login_user.get_username(), new_task)
+            #if search_schedule_by_title(globals.login_user.get_username(), old_task.get_title()):
+            #    delete_schedule(globals.login_user.get_username(), old_task)
+            if old_task.get_title() == title:
+                delete_schedule(globals.login_user.get_username(), old_task)
+                result, msg = add_schedule(globals.login_user.get_username(), new_task)
+            else:
+                #新标题和旧的有重复
+                if search_schedule_by_title(globals.login_user.get_username(), new_task.get_title()):
+                    replace_reply = QMessageBox.question(self, 'Update confirm', "Task with the same title already exists. Do you want to replace it?",
+                                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                    if replace_reply == QMessageBox.No:
+                        return
+                    delete_schedule(globals.login_user.get_username(), new_task)
+                    result, msg = add_schedule(globals.login_user.get_username(), new_task)
+                #没有重复
+                else:
+                    delete_schedule(globals.login_user.get_username(), old_task)
+                    result, msg = add_schedule(globals.login_user.get_username(), new_task)
             if result:
-                QMessageBox.information(self, "Success", "Successfully add task!")
+                QMessageBox.information(self, "Success", "Successfully updated task!")
                 self.taskUpdated.emit()
                 self.close()
             else:
-                reply = QMessageBox.question(self, 'Task Exists',
-                                             "Task already exists. Do you want to replace it?",
-                                             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-                if reply == QMessageBox.Yes:
-                    delete_schedule(globals.login_user.get_username(), new_task)
-                    result, msg = add_schedule(globals.login_user.get_username(), new_task)
-                    if result:
-                        QMessageBox.information(self, "Success", "Successfully replaced task!")
-                        self.taskUpdated.emit()
-                        self.close()
-                    else:
-                        QMessageBox.information(self, "Failed", "Failed to replace task!")
-                else:
-                    QMessageBox.information(self, "Cancelled", "Task replacement cancelled.")
+                QMessageBox.information(self, "Failed", "Failed to update task! " + msg)
+                    
 
 
     def initWord(self, title, priority, deadline, begin, style, daily, expection, description, state): #在show之前调用，获取那几项要提前展示的内容并设置
+        if state == 0:
+            print_state = 'unstarted'
+        elif state == 1:
+            print_state = 'ongoing'
+        elif state == 2:
+            print_state = 'completed'
+        else:
+            print_state = 'expired'
         self.lineEdit.setText(title)
         self.textEdit.setText(description)
         self.dateTimeEdit.dateTimeFromText(deadline)
         self.dateTimeEdit_2.dateTimeFromText(begin)
-        self.comboBox.setCurrentText(state)
+        #self.comboBox.setCurrentText(print_state)
         self.comboBox_2.setCurrentText(priority)
         self.comboBox_3.setCurrentText(style)
         self.spinBox.setValue(expection)
