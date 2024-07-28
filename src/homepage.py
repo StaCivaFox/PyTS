@@ -21,7 +21,7 @@ from ui_delete import *
 from user import *
 from ui_reminder import *
 from ui_date import Ui_Date
-from ui_create_new import Ui_Create_New
+from ui_create import Ui_Create
 
 
 def is_valid_datetime(date_string, date_format="%Y-%m-%d %H:%M:%S"):
@@ -200,15 +200,20 @@ class Ui_MainWindow(QMainWindow):
         # 删除所有的后，重新逐行显示
         self.tableWidget.setRowCount(len(globals.tasks))
         for row_idx, task in enumerate(globals.tasks):
+            print_state = get_and_update_state(globals.login_user.get_username(), task, datetime.now())
+            if task.daily == 0:
+                print_daily = "No"
+            else:
+                print_daily = "Yes"
             self.tableWidget.setItem(row_idx, 0, QTableWidgetItem(task.title))
             self.tableWidget.setItem(row_idx, 1, QTableWidgetItem(task.style))
             self.tableWidget.setItem(row_idx, 2, QTableWidgetItem(str(task.priority)))
-            self.tableWidget.setItem(row_idx, 3, QTableWidgetItem(str(task.daily)))
+            self.tableWidget.setItem(row_idx, 3, QTableWidgetItem(print_daily))
             self.tableWidget.setItem(row_idx, 4, QTableWidgetItem(str(task.begin)))
             self.tableWidget.setItem(row_idx, 5, QTableWidgetItem(str(task.deadline)))
             self.tableWidget.setItem(row_idx, 6, QTableWidgetItem(str(task.expection)))
             self.tableWidget.setItem(row_idx, 7, QTableWidgetItem(task.description))
-            self.tableWidget.setItem(row_idx, 8, QTableWidgetItem(str(task.state)))
+            self.tableWidget.setItem(row_idx, 8, QTableWidgetItem(print_state))
         self.tableWidget.resizeColumnsToContents()  # 调整列宽以适应内容
         self.tableWidget.horizontalHeader().setMinimumSectionSize(24)
         self.tableWidget.horizontalHeader().setDefaultSectionSize(87)
@@ -238,7 +243,7 @@ class Ui_MainWindow(QMainWindow):
 
 
     def clickCreateButton(self):
-        self.createWindow = Ui_Create_New()
+        self.createWindow = Ui_Create()
         self.createWindow.taskCreated.connect(self.updateHomeTasks)
         self.createWindow.show()
 
