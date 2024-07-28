@@ -229,7 +229,7 @@ class Ui_Create(QMainWindow):
         self.comboBox_2.setItemText(3, QCoreApplication.translate("MainWindow", u"4", None))
 
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"The larger the number, the higher the priority", None))
-        self.label_10.setText(QCoreApplication.translate("MainWindow", u"Begin time", None))
+        self.label_10.setText(QCoreApplication.translate("MainWindow", u"Begin Time", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"Style", None))
         self.comboBox_3.setItemText(0, QCoreApplication.translate("MainWindow", u"Sport", None))
         self.comboBox_3.setItemText(1, QCoreApplication.translate("MainWindow", u"Work/Study", None))
