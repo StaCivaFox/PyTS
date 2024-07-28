@@ -238,7 +238,7 @@ class Ui_Create(QMainWindow):
 
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"Estimated Hours Cost", None))
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Daily Task", None))
-        self.checkBox.setText(QCoreApplication.translate("MainWindow", u"CheckBox", None))
+        self.checkBox.setText(QCoreApplication.translate("MainWindow", u"", None))
     # retranslateUi
 
     def on_combobox_changed(self, index):
