@@ -260,7 +260,8 @@ class Ui_MainWindow(QMainWindow):
             self.readAndUpdateWindow.taskUpdated.connect(self.updateHomeTasks)
             # 下边这一行实现初始化显示，即read的功能
             self.readAndUpdateWindow.initWord(task.title, str(task.priority),
-                                              task.deadline.strftime("%Y-%m-%d %H:%M:%S"), task.description, task.state)
+                                              task.deadline.strftime("%Y-%m-%d %H:%M:%S"), task.begin.strftime("%Y-%m-%d %H:%M:%S"),
+                                              task.style, task.daily, task.expection, task.description, task.state)
             self.readAndUpdateWindow.show()
 
     # delete弹出新窗口，展示所有任务，在任务的右边显示check box， 选后点击确认将所有选中的任务删除，取消直接退出
