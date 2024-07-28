@@ -231,10 +231,8 @@ class Ui_MainWindow(QMainWindow):
         qdate = self.calendarWidget.selectedDate()
         # 实现与数据库等待连接，将date传入，获得当天的日程
         date = datetime.combine(qdate.toPython(), datetime.min.time())  # Convert to datetime object
-        task_list = search_schedule_by_date(globals.login_user.get_username(), date)
-        taskList = sort_schedules_by_deadline(task_list)
         self.dateWindow = Ui_Date()
-        self.dateWindow.getTaskList(taskList)
+        self.dateWindow.initDateWindow(date)
         self.dateWindow.show()
 
     def clickCreateButton(self):
