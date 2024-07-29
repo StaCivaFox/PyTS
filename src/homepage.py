@@ -244,14 +244,14 @@ class Ui_MainWindow(QMainWindow):
             checkbox = QCheckBox()
             if print_state == "completed":
                 checkbox.setCheckState(Qt.CheckState.Checked)
-            print(f"Row {row_idx}: print_state={print_state}, checkbox checked={checkbox.isChecked()}")
-            checkbox.stateChanged.connect(lambda state, row=row_idx: self.checkTaskCompleted(state, row))
+            print(f"Row {row_idx + 1}: print_state={print_state}, checkbox checked={checkbox.checkState()}")
             checkbox_widget = QWidget()
             checkbox_layout = QHBoxLayout(checkbox_widget)
             checkbox_layout.addWidget(checkbox)
             checkbox_layout.setAlignment(Qt.AlignCenter)
             checkbox_layout.setContentsMargins(0, 0, 0, 0)
             self.tableWidget.setCellWidget(row_idx, 0, checkbox_widget)
+            checkbox.stateChanged.connect(lambda state, row=row_idx: self.checkTaskCompleted(row, state))
 
         self.tableWidget.resizeColumnsToContents()  # 调整列宽以适应内容
         self.tableWidget.horizontalHeader().setMinimumSectionSize(24)
@@ -275,24 +275,28 @@ class Ui_MainWindow(QMainWindow):
         self.calendarWidget.setMaximumDate(QDate(2099, 12, 31))
 
 
-    def checkTaskCompleted(self, state, row):
-        #print("enter checkTaskCompleted")
+    def checkTaskCompleted(self, row, state):
+        print(f"enter checkTaskCompleted Row {row+1}")
+        state = None
+        cell_widget = self.tableWidget.cellWidget(row, 0).findChild(QCheckBox)
+        # print(f"Row {row + 1} type: ", type(cell_widget))
+        if isinstance(cell_widget, QCheckBox):
+            state = cell_widget.checkState()
         if state == Qt.CheckState.Checked:
-            print(f"Row {row}: checked")
+            print(f"Row {row+1}: checked")
             taskname = self.tableWidget.item(row, 1).text()
             task = search_schedule_by_title(globals.login_user.get_username(), taskname)
             edit_schedule_state(globals.login_user.get_username(), task, "completed")
             self.updateHomeTasks()
-        else:
-            print(f"Row {row}: unchecked")
-            #taskname = self.tableWidget.item(row, 1).text()
-            #task = search_schedule_by_title(globals.login_user.get_username(), taskname)
-            #task.state = 1
-            #edit_schedule_state(globals.login_user.get_username(), task, 1)
+        elif state == Qt.CheckState.Unchecked:
+            print(f"Row {row+1}: unchecked")
+            taskname = self.tableWidget.item(row, 1).text()
+            task = search_schedule_by_title(globals.login_user.get_username(), taskname)
+            task_state = update_uncompleted_state(globals.login_user.get_username(), task, datetime.now())
+            edit_schedule_state(globals.login_user.get_username(), task, task_state)
             self.updateHomeTasks()
-            pass
-            
-
+        else:
+            print(f"Row {row+1}: unknown")
 
     def clickCalendar(self):
         qdate = self.calendarWidget.selectedDate()
@@ -383,15 +387,15 @@ class Ui_MainWindow(QMainWindow):
             pass
 
     def printTasks(self):
-        # print("update tasks at", datetime.now())
-        # for task in globals.tasks:
-        #     print(task)
+        print("update tasks at", datetime.now())
+        for task in globals.tasks:
+            print(task)
         self.freshHomeTable()
 
     def updateHomeTasks(self):
         globals.tasks = scan_schedule(globals.login_user.get_username())
-        for task in globals.tasks:
-            print(task)
+        # for task in globals.tasks:
+        #     print(task)
         self.printTasks()
 
     '''
