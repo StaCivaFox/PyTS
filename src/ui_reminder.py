@@ -5,6 +5,7 @@ from PySide6.QtGui import QColor, QFont
 from datetime import datetime
 import globals
 from datetime import date
+from login import *
 
 
 class ReminderWidget(QWidget):
@@ -27,8 +28,8 @@ class ReminderWidget(QWidget):
         self.input_label.setText("Select a date:")
         layout2.addWidget(self.input_label)
         self.date_edit = QDateEdit(QDate.fromString(datetime.now().strftime('%Y-%m-%d'), 'yyyy-MM-dd'), self)
-        self.date_edit.setDateRange(QDate.fromString(datetime(2020, 1, 1).strftime('%Y-%m-%d'), 'yyyy-MM-dd'),
-                                    QDate.fromString(datetime(2030, 12, 31).strftime('%Y-%m-%d'), 'yyyy-MM-dd'))
+        self.date_edit.setDateRange(QDate.fromString(datetime(2024, 1, 1).strftime('%Y-%m-%d'), 'yyyy-MM-dd'),
+                                    QDate.fromString(datetime(2099, 12, 31).strftime('%Y-%m-%d'), 'yyyy-MM-dd'))
         layout2.addWidget(self.date_edit)
         layout.addLayout(layout2)
 
@@ -64,7 +65,7 @@ class ReminderWidget(QWidget):
         selected_tasks = []
         # 筛选任务（今日及今日后，指定日期前）
         for task in globals.tasks:
-            if date.today() <= task.deadline.date() <= chosen_date and task.state != 'completed':
+            if date.today() <= task.deadline.date() <= chosen_date and task.state != 2:  # task.state != 'completed':
                 selected_tasks.append(task)
         # 按deadline升序，priority降序
         selected_tasks.sort(reverse=False, key=lambda task: (task.deadline, -task.priority))
@@ -73,9 +74,12 @@ class ReminderWidget(QWidget):
             row_position = self.table_widget.rowCount()
             self.table_widget.insertRow(row_position)
             # 创建单元格并设置内容
+            print_state = get_and_update_state(globals.login_user.get_username(), task, datetime.now())
+            globals.tasks = scan_schedule(globals.login_user.get_username())
+            print_daily = "Yes" if task.daily != 0 else "No"
             for column, content in enumerate(
-                    [task.title, task.style, task.priority, task.daily, task.begin.date(),
-                     task.deadline.date(), task.expection, task.description, task.state]):
+                    [task.title, task.style, task.priority, print_daily, task.begin,
+                     task.deadline, task.expection, task.description, print_state]):
                 item = QTableWidgetItem(str(content))
                 if task.deadline.date() == date.today():
                     # 设置当日任务颜色
@@ -92,7 +96,7 @@ class ReminderWidget(QWidget):
         selected_tasks = []
         # 筛选任务（今日及今日后，指定日期前）
         for task in globals.tasks:
-            if date.today() <= task.begin.date() <= chosen_date and task.state != 'completed':
+            if date.today() <= task.begin.date() <= chosen_date and task.state != 2:
                 selected_tasks.append(task)
         # 按deadline升序，priority降序
         selected_tasks.sort(reverse=False, key=lambda task: (task.begin, -task.priority))
@@ -101,9 +105,12 @@ class ReminderWidget(QWidget):
             row_position = self.table_widget2.rowCount()
             self.table_widget2.insertRow(row_position)
             # 创建单元格并设置内容
+            print_state = get_and_update_state(globals.login_user.get_username(), task, datetime.now())
+            globals.tasks = scan_schedule(globals.login_user.get_username())
+            print_daily = "Yes" if task.daily != 0 else "No"
             for column, content in enumerate(
-                    [task.title, task.style, task.priority, task.daily, task.begin.date(),
-                     task.deadline.date(), task.expection, task.description, task.state]):
+                    [task.title, task.style, task.priority, print_daily, task.begin,
+                     task.deadline, task.expection, task.description, print_state]):
                 item = QTableWidgetItem(str(content))
                 if task.begin.date() == date.today():
                     # 设置当日任务颜色
