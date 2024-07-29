@@ -87,7 +87,7 @@ class Ui_Date(QMainWindow):
         self.tableWidget.setDragEnabled(False)
         self.tableWidget.setSortingEnabled(False)
         self.tableWidget.horizontalHeader().setVisible(True)
-        self.tableWidget.horizontalHeader().setDefaultSectionSize(70)
+        self.tableWidget.horizontalHeader().setDefaultSectionSize(120)
         self.tableWidget.horizontalHeader().setProperty("showSortIndicator", False)
         self.tableWidget.horizontalHeader().setStretchLastSection(True)
         self.label = QLabel(self.centralwidget)
@@ -114,7 +114,7 @@ class Ui_Date(QMainWindow):
     # setupUi
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Daily Tasks", None))
         ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"title", None));
         ___qtablewidgetitem1 = self.tableWidget.horizontalHeaderItem(1)

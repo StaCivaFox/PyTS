@@ -338,7 +338,7 @@ class Ui_MainWindow(QMainWindow):
         # scan_schedule(self.name) # 删除前数据库任务列表
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"PyTS", None))
         self.label.setText(QCoreApplication.translate("MainWindow",
                                                       u"<html><head/><body><p align=\"center\"><span style=\" font-size:18pt; font-weight:700;\">PyTS App</span></p></body></html>",
                                                       None))
