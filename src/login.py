@@ -134,6 +134,18 @@ def get_and_update_state(name,task,now):
         return 'completed'
 
 
+def update_uncompleted_state(name,task,now):
+    if not is_begin(task,now):
+        edit_schedule_state(name,task,"unstarted")
+        return 'unstarted'
+    elif is_begin(task,now) and not is_overdue(task,now):
+        edit_schedule_state(name,task,"ongoing")
+        return 'ongoing'
+    elif is_overdue(task,now):
+        edit_schedule_state(name,task,"expired")
+        return 'expired'
+
+
 def edit_schedule_style(name,task,style):
     conn,cursor = make_connect()
     sql = "SELECT * FROM `{}` where title = '{}'".format(name,task.title)
