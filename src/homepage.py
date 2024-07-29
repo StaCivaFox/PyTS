@@ -47,7 +47,7 @@ class Ui_MainWindow(QMainWindow):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(977, 643)
+        MainWindow.resize(1046, 643)
         MainWindow.setMaximumSize(QSize(16777215, 16777215))
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -78,7 +78,7 @@ class Ui_MainWindow(QMainWindow):
 
         self.verticalFrame2 = QFrame(self.page_4)
         self.verticalFrame2.setObjectName("verticalFrame2")
-        self.verticalFrame2.setGeometry(QRect(0, 10, 821, 571))
+        self.verticalFrame2.setGeometry(QRect(0, 10, 921, 571))
 
         self.horizontalFrame = QFrame(self.verticalFrame2)
         self.horizontalFrame.setObjectName("horizontalFrame")
@@ -269,7 +269,7 @@ class Ui_MainWindow(QMainWindow):
     def initCalendar(self):
         self.calendarWidget = QCalendarWidget(self.page_3)
         self.calendarWidget.setObjectName("calendarWidget")
-        self.calendarWidget.setGeometry(QRect(0, 10, 821, 571))
+        self.calendarWidget.setGeometry(QRect(0, 10, 911, 571))
         self.calendarWidget.clicked.connect(self.clickCalendar)
         self.calendarWidget.setMinimumDate(QDate(2000, 1, 1))
         self.calendarWidget.setMaximumDate(QDate(2099, 12, 31))
@@ -350,6 +350,8 @@ class Ui_MainWindow(QMainWindow):
         # self.readButton.setText(QCoreApplication.translate("MainWindow", u"Read", None))
         # self.updateButton.setText(QCoreApplication.translate("MainWindow", u"Update", None))
         self.deleteButton.setText(QCoreApplication.translate("MainWindow", u"Delete", None))
+        ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)
+        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Completed", None))
         ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(1)
         ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Title", None))
         ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(2)
