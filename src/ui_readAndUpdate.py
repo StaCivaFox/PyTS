@@ -239,7 +239,7 @@ class Ui_ReadAndUpdate(QMainWindow):
     # setupUi
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Update", None))
         self.pushButton.setText(QCoreApplication.translate("MainWindow", u"Cancel", None))
         self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"Ok", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"Title       ", None))

@@ -30,7 +30,7 @@ class Ui_Date(QMainWindow):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(768, 497)
+        MainWindow.resize(868, 467)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.tableWidget = QTableWidget(self.centralwidget)
@@ -80,19 +80,19 @@ class Ui_Date(QMainWindow):
         __qtablewidgetitem8.setBackground(QColor(213, 211, 185));
         self.tableWidget.setHorizontalHeaderItem(8, __qtablewidgetitem8)
         self.tableWidget.setObjectName(u"tableWidget")
-        self.tableWidget.setGeometry(QRect(10, 50, 751, 391))
+        self.tableWidget.setGeometry(QRect(10, 50, 851, 421))
         self.tableWidget.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.tableWidget.setSizeAdjustPolicy(QAbstractScrollArea.SizeAdjustPolicy.AdjustIgnored)
         self.tableWidget.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.tableWidget.setDragEnabled(False)
         self.tableWidget.setSortingEnabled(False)
         self.tableWidget.horizontalHeader().setVisible(True)
-        self.tableWidget.horizontalHeader().setDefaultSectionSize(81)
+        self.tableWidget.horizontalHeader().setDefaultSectionSize(120)
         self.tableWidget.horizontalHeader().setProperty("showSortIndicator", False)
         self.tableWidget.horizontalHeader().setStretchLastSection(True)
         self.label = QLabel(self.centralwidget)
         self.label.setObjectName(u"label")
-        self.label.setGeometry(QRect(360, 10, 71, 41))
+        self.label.setGeometry(QRect(400, 10, 71, 41))
         font2 = QFont()
         font2.setFamilies([u"Monotype Corsiva"])
         font2.setPointSize(22)
@@ -114,7 +114,7 @@ class Ui_Date(QMainWindow):
     # setupUi
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Daily Tasks", None))
         ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"title", None));
         ___qtablewidgetitem1 = self.tableWidget.horizontalHeaderItem(1)
@@ -151,7 +151,7 @@ class Ui_Date(QMainWindow):
             self.tableWidget.setItem(row_idx, 0, QTableWidgetItem(task.title))
             self.tableWidget.setItem(row_idx, 1, QTableWidgetItem(task.deadline.strftime("%Y-%m-%d %H:%M:%S")))
             self.tableWidget.setItem(row_idx, 2, QTableWidgetItem(task.begin.strftime("%Y-%m-%d %H:%M:%S")))
-            self.tableWidget.setItem(row_idx, 3, QTableWidgetItem(task.expection))
+            self.tableWidget.setItem(row_idx, 3, QTableWidgetItem(str(task.expection)))
             self.tableWidget.setItem(row_idx, 4, QTableWidgetItem(str(task.priority)))
             self.tableWidget.setItem(row_idx, 5, QTableWidgetItem(task.style))
             if task.daily == 1:
@@ -161,6 +161,6 @@ class Ui_Date(QMainWindow):
             self.tableWidget.setItem(row_idx, 7, QTableWidgetItem(task.description))
             self.tableWidget.setItem(row_idx, 8, QTableWidgetItem(str(task.state)))
         self.tableWidget.resizeColumnsToContents()  # 调整列宽以适应内容
-        min_width = 50
+        max_width = 120
         for i in range(self.tableWidget.columnCount()):  # 设置最小列宽
-            self.tableWidget.setColumnWidth(i, max(min_width, self.tableWidget.columnWidth(i)))
+            self.tableWidget.setColumnWidth(i, min(max_width, self.tableWidget.columnWidth(i)))
