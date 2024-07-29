@@ -12,6 +12,9 @@ class LoginUI(QMainWindow):
         self.setWindowTitle("Login")
         self.setFixedSize(400, 300)
 
+        self.setIconSize(QSize(24, 24))
+        self.setWindowIcon(QIcon('icon.ico'))
+
         self.sign_up_window = SignUpWindow()
 
         self.central_widget = QWidget()

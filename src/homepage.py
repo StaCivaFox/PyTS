@@ -49,6 +49,10 @@ class Ui_MainWindow(QMainWindow):
             MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1046, 643)
         MainWindow.setMaximumSize(QSize(16777215, 16777215))
+
+        MainWindow.setIconSize(QSize(24, 24))
+        MainWindow.setWindowIcon(QIcon('icon.ico'))
+
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
 

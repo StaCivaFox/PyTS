@@ -29,6 +29,10 @@ class Ui_ViewSelectedTasks(QMainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(689, 441)
+
+        MainWindow.setIconSize(QSize(24, 24))
+        MainWindow.setWindowIcon(QIcon('icon.ico'))
+
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayoutWidget = QWidget(self.centralwidget)

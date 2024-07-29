@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 ################################################################################
 ## Form generated from reading UI file 'delete_uiBzjUIW.ui'
 ##
@@ -10,6 +9,7 @@
 
 from PySide6.QtCore import *
 from PySide6.QtWidgets import *
+from PySide6.QtGui import *
 from login import *
 import globals
 
@@ -28,6 +28,10 @@ class Ui_Delete(QMainWindow):
             Delete_Window.setObjectName(u"Delete")
         # 设置窗口大小
         Delete_Window.resize(833, 422)
+
+        Delete_Window.setIconSize(QSize(24, 24))
+        Delete_Window.setWindowIcon(QIcon('icon.ico'))
+
         # 创建中央小部件并设置其对象名
         self.centralwidget = QWidget(Delete_Window)
         self.centralwidget.setObjectName(u"centralwidget")
