@@ -39,6 +39,10 @@ class Ui_Create(QMainWindow):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
         MainWindow.setSizePolicy(sizePolicy)
+
+        MainWindow.setIconSize(QSize(24, 24))
+        MainWindow.setWindowIcon(QIcon('icon.ico'))
+
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.horizontalLayoutWidget = QWidget(self.centralwidget)

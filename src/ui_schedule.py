@@ -18,6 +18,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QHBoxLayout, QHeaderView, QPushButton,
     QSizePolicy, QTableWidget, QTableWidgetItem, QVBoxLayout,
     QWidget)
+from windowsInUi_schedule.ui_addTasks import Ui_AddTasks
+from windowsInUi_schedule.ui_addTimePeriod import Ui_AddTimePeriod
+from windowsInUi_schedule.ui_viewSelectedTime import Ui_ViewSelectedTime
+from windowsInUi_schedule.ui_viewSelectedTasks import Ui_ViewSelectedTasks
 
 class Ui_Schedule(QWidget):
     def __init__(self):
@@ -27,10 +31,10 @@ class Ui_Schedule(QWidget):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(875, 560)
+        Form.resize(965, 590)
         self.verticalLayoutWidget = QWidget(Form)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(9, 9, 861, 541))
+        self.verticalLayoutWidget.setGeometry(QRect(9, 9, 921, 581))
         self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -123,16 +127,20 @@ class Ui_Schedule(QWidget):
         self.pushButton_5.clicked.connect(self.schedule)
 
     def addTime(self):
-        pass
+        self.addTimeWindow = Ui_AddTimePeriod()
+        self.addTimeWindow.show()
 
     def addTasks(self):
-        pass
+        self.addTaskWindow = Ui_AddTasks()
+        self.addTaskWindow.show()
 
     def viewTime(self):
-        pass
+        self.viewTimeWindow = Ui_ViewSelectedTime()
+        self.viewTimeWindow.show()
 
     def viewTasks(self):
-        pass
+        self.viewTaskWindow = Ui_ViewSelectedTasks()
+        self.viewTaskWindow.show()
 
     def schedule(self):
         pass

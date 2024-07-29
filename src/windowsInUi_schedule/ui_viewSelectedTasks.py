@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'Add TaskspHGJdl.ui'
+## Form generated from reading UI file 'Selected TaksmmcJQS.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.7.2
 ##
@@ -20,8 +20,7 @@ from PySide6.QtWidgets import (QApplication, QHBoxLayout, QHeaderView, QLabel,
     QSpacerItem, QStatusBar, QTableWidget, QTableWidgetItem,
     QVBoxLayout, QWidget)
 
-
-class Ui_AddTasks(QMainWindow):
+class Ui_ViewSelectedTasks(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
@@ -30,11 +29,15 @@ class Ui_AddTasks(QMainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(689, 441)
+
+        MainWindow.setIconSize(QSize(24, 24))
+        MainWindow.setWindowIcon(QIcon('icon.ico'))
+
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayoutWidget = QWidget(self.centralwidget)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(10, 0, 671, 431))
+        self.verticalLayoutWidget.setGeometry(QRect(0, 0, 681, 431))
         self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -103,7 +106,7 @@ class Ui_AddTasks(QMainWindow):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"Add Tasks", None))
+        self.label.setText(QCoreApplication.translate("MainWindow", u"Selected Tasks", None))
         ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Deleted", None));
         ___qtablewidgetitem1 = self.tableWidget.horizontalHeaderItem(1)
@@ -115,7 +118,7 @@ class Ui_AddTasks(QMainWindow):
         ___qtablewidgetitem4 = self.tableWidget.horizontalHeaderItem(4)
         ___qtablewidgetitem4.setText(QCoreApplication.translate("MainWindow", u"Description", None));
         self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"Cancel", None))
-        self.pushButton.setText(QCoreApplication.translate("MainWindow", u"Add", None))
+        self.pushButton.setText(QCoreApplication.translate("MainWindow", u"Delete", None))
     # retranslateUi
 
     def initButton(self):
@@ -130,6 +133,6 @@ class Ui_AddTasks(QMainWindow):
 
 
 # app = QApplication([])
-# mainWindow = Ui_AddTasks()
+# mainWindow = Ui_ViewSelectedTasks()
 # mainWindow.show()
 # app.exec()

@@ -8,21 +8,12 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import *
-from PySide6.QtGui import *
-from PySide6.QtWidgets import *
-from login import *
-from task import *
-from datetime import datetime
-from ui_create import Ui_Create
 from ui_readAndUpdate import Ui_ReadAndUpdate
-import globals
 from ui_delete import *
-from user import *
 from ui_reminder import *
 from ui_date import Ui_Date
 from ui_create import Ui_Create
-
+from ui_schedule import Ui_Schedule
 
 def is_valid_datetime(date_string, date_format="%Y-%m-%d %H:%M:%S"):
     try:
@@ -49,6 +40,10 @@ class Ui_MainWindow(QMainWindow):
             MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1046, 643)
         MainWindow.setMaximumSize(QSize(16777215, 16777215))
+
+        MainWindow.setIconSize(QSize(24, 24))
+        MainWindow.setWindowIcon(QIcon('icon.ico'))
+
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
 
@@ -74,6 +69,9 @@ class Ui_MainWindow(QMainWindow):
         self.reminderWidget = ReminderWidget()
         self.reminderWidget.setObjectName("reminderWidget")
         self.stackedWidget.addWidget(self.reminderWidget)
+        self.scheduleWidget = Ui_Schedule()
+        self.scheduleWidget.setObjectName("scheduleWidget")
+        self.stackedWidget.addWidget(self.scheduleWidget)
         self.stackedWidget.setCurrentIndex(1)
 
         self.verticalFrame2 = QFrame(self.page_4)
@@ -143,6 +141,7 @@ class Ui_MainWindow(QMainWindow):
         self.homeButton.clicked.connect(self.switchPage)
         self.calendarButton.clicked.connect(self.switchPage)
         self.reminderButton.clicked.connect(self.switchPage)
+        self.schedulerButton.clicked.connect(self.switchPage)
 
     def initLayout(self):
         self.verticalLayout = QVBoxLayout(self.centralwidget)
@@ -385,8 +384,7 @@ class Ui_MainWindow(QMainWindow):
             # self.stackedWidget.setCurrentWidget(self.reminderWidget)  # why doesn't widget work??
             self.stackedWidget.setCurrentIndex(2)  # why index ok??
         elif btn == self.schedulerButton:
-            # TODO
-            pass
+            self.stackedWidget.setCurrentIndex(3)
 
     def printTasks(self):
         #print("update tasks at", datetime.now())
