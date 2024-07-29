@@ -71,15 +71,18 @@ class Ui_Delete(QMainWindow):
         # self.task_table.clear()
         self.task_table.setShowGrid(True)
         for row_idx, task in enumerate(globals.tasks):
+            print_state = get_and_update_state(globals.login_user.get_username(), task, datetime.now())
+            globals.tasks = scan_schedule(globals.login_user.get_username())
+            print_daily = "Yes" if task.daily != 0 else "No"
             self.task_table.setItem(row_idx, 0, QTableWidgetItem(task.title))
             self.task_table.setItem(row_idx, 1, QTableWidgetItem(task.style))
             self.task_table.setItem(row_idx, 2, QTableWidgetItem(str(task.priority)))
-            self.task_table.setItem(row_idx, 3, QTableWidgetItem(str(task.daily)))
-            self.task_table.setItem(row_idx, 4, QTableWidgetItem(str(task.begin.date())))
-            self.task_table.setItem(row_idx, 5, QTableWidgetItem(str(task.deadline.date())))
+            self.task_table.setItem(row_idx, 3, QTableWidgetItem(print_daily))
+            self.task_table.setItem(row_idx, 4, QTableWidgetItem(str(task.begin)))
+            self.task_table.setItem(row_idx, 5, QTableWidgetItem(str(task.deadline)))
             self.task_table.setItem(row_idx, 6, QTableWidgetItem(str(task.expection)))
             self.task_table.setItem(row_idx, 7, QTableWidgetItem(task.description))
-            self.task_table.setItem(row_idx, 8, QTableWidgetItem(str(task.state)))
+            self.task_table.setItem(row_idx, 8, QTableWidgetItem(print_state))
         self.task_table.resizeColumnsToContents()  # 调整列宽以适应内容
         min_width = 50
         for i in range(self.task_table.columnCount()):  # 设置最小列宽
