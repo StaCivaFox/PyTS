@@ -22,6 +22,8 @@ from windowsInUi_schedule.ui_addTasks import Ui_AddTasks
 from windowsInUi_schedule.ui_addTimePeriod import Ui_AddTimePeriod
 from windowsInUi_schedule.ui_viewSelectedTime import Ui_ViewSelectedTime
 from windowsInUi_schedule.ui_viewSelectedTasks import Ui_ViewSelectedTasks
+import windowsInUi_schedule.schedule_globals as schedule_globals
+import globals
 
 class Ui_Schedule(QWidget):
     def __init__(self):
@@ -131,6 +133,7 @@ class Ui_Schedule(QWidget):
         self.addTimeWindow.show()
 
     def addTasks(self):
+        #print(globals.tasks)
         self.addTaskWindow = Ui_AddTasks()
         self.addTaskWindow.show()
 

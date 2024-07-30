@@ -243,7 +243,7 @@ class Ui_MainWindow(QMainWindow):
             checkbox = QCheckBox()
             if print_state == "completed":
                 checkbox.setCheckState(Qt.CheckState.Checked)
-            print(f"Row {row_idx + 1}: print_state={print_state}, checkbox checked={checkbox.checkState()}")
+            #print(f"Row {row_idx + 1}: print_state={print_state}, checkbox checked={checkbox.checkState()}")
             checkbox_widget = QWidget()
             checkbox_layout = QHBoxLayout(checkbox_widget)
             checkbox_layout.addWidget(checkbox)
@@ -275,20 +275,20 @@ class Ui_MainWindow(QMainWindow):
 
 
     def checkTaskCompleted(self, row, state):
-        print(f"enter checkTaskCompleted Row {row+1}")
+        #print(f"enter checkTaskCompleted Row {row+1}")
         state = None
         cell_widget = self.tableWidget.cellWidget(row, 0).findChild(QCheckBox)
         # print(f"Row {row + 1} type: ", type(cell_widget))
         if isinstance(cell_widget, QCheckBox):
             state = cell_widget.checkState()
         if state == Qt.CheckState.Checked:
-            print(f"Row {row+1}: checked")
+            #print(f"Row {row+1}: checked")
             taskname = self.tableWidget.item(row, 1).text()
             task = search_schedule_by_title(globals.login_user.get_username(), taskname)
             edit_schedule_state(globals.login_user.get_username(), task, "completed")
             self.updateHomeTasks()
         elif state == Qt.CheckState.Unchecked:
-            print(f"Row {row+1}: unchecked")
+            #print(f"Row {row+1}: unchecked")
             taskname = self.tableWidget.item(row, 1).text()
             task = search_schedule_by_title(globals.login_user.get_username(), taskname)
             task_state = update_uncompleted_state(globals.login_user.get_username(), task, datetime.now())
@@ -387,9 +387,9 @@ class Ui_MainWindow(QMainWindow):
             self.stackedWidget.setCurrentIndex(3)
 
     def printTasks(self):
-        print("update tasks at", datetime.now())
-        for task in globals.tasks:
-            print(task)
+        #print("update tasks at", datetime.now())
+        #for task in globals.tasks:
+        #    print(task)
         self.freshHomeTable()
 
     def updateHomeTasks(self):
