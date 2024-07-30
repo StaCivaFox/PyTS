@@ -274,14 +274,15 @@ class Ui_Create(QMainWindow):
         expection = self.spinBox.value()
         priority = self.comboBox_2.currentText()  # 返回string类型
         state = 0
-        if (title == '' or description == '') or (begin_time > deadline):
+        if (title == '' or description == '') or (begin_time > deadline) or (expection == 0):
             if title == '' or description == '':
                 QMessageBox.information(self, "Falied", "Title and Description can not be blank.")
-            else:
-                # 提示有字段未填写
+            elif begin_time > deadline:
                 QMessageBox.information(self, "Falied", "Begin time must be earlier than deadline.")
                 # self.informWindow = ui_inform_init()
                 # self.informWindow.show()
+            else:
+                QMessageBox.information(self, "Falied", "Estimated hours cost can not be 0.")
         else:  # 连接数据库，先通过title看有没有重复的，有就先删再加（提示用户），没有直接加
             new_task = Task(title, style, priority, daily, begin_time, deadline, expection, description, state)
             result, msg = add_schedule(globals.login_user.get_username(), new_task)

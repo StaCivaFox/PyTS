@@ -1,3 +1,7 @@
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+
 class TimePeriod():
     def __init__(self, begin, end, style) -> None:
         self.beginTime = begin
@@ -28,7 +32,7 @@ class TimePeriod():
         self.style = style
 
     def get_duration(self):
-        return self.endTime - self.beginTime
+        return self.beginTime.secsTo(self.endTime)
     
     def toString(self):
         return f"{self.beginTime.toString()} - {self.endTime.toString()}"

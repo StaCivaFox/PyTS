@@ -163,7 +163,15 @@ class Ui_Date(QMainWindow):
             else:
                 self.tableWidget.setItem(row_idx, 6, QTableWidgetItem('No'))
             self.tableWidget.setItem(row_idx, 7, QTableWidgetItem(task.description))
-            self.tableWidget.setItem(row_idx, 8, QTableWidgetItem(str(task.state)))
+            if task.state == 0:
+                print_state = "unstarted"
+            elif task.state == 1:
+                print_state = "ongoing"
+            elif task.state == 2:
+                print_state = "completed"
+            else:
+                print_state = "expired"
+            self.tableWidget.setItem(row_idx, 8, QTableWidgetItem(print_state))
         self.tableWidget.resizeColumnsToContents()  # 调整列宽以适应内容
         max_width = 120
         for i in range(self.tableWidget.columnCount()):  # 设置最小列宽

@@ -8,6 +8,7 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
+import itertools
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
     QSize, QTime, QUrl, Qt)
@@ -15,9 +16,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QHBoxLayout, QHeaderView, QPushButton,
-    QSizePolicy, QTableWidget, QTableWidgetItem, QVBoxLayout,
-    QWidget)
+from PySide6.QtWidgets import *
 from windowsInUi_schedule.ui_addTasks import Ui_AddTasks
 from windowsInUi_schedule.ui_addTimePeriod import Ui_AddTimePeriod
 from windowsInUi_schedule.ui_viewSelectedTime import Ui_ViewSelectedTime
@@ -91,6 +90,8 @@ class Ui_Schedule(QWidget):
         self.tableWidget.setObjectName(u"tableWidget")
         self.tableWidget.horizontalHeader().setProperty("showSortIndicator", False)
         self.tableWidget.horizontalHeader().setStretchLastSection(True)
+        
+        self.tableWidget.setColumnWidth(0, 150)  # Set width for the first column
 
         self.verticalLayout.addWidget(self.tableWidget)
 
@@ -145,8 +146,78 @@ class Ui_Schedule(QWidget):
         self.viewTaskWindow = Ui_ViewSelectedTasks()
         self.viewTaskWindow.show()
 
+    def showSchedule(self, time_period_to_tasks):
+        self.tableWidget.clearContents()
+        self.tableWidget.setRowCount(0)
+        for time_period, tasks in time_period_to_tasks.items():
+            row = self.tableWidget.rowCount()
+            self.tableWidget.insertRow(row)
+            self.tableWidget.setItem(row, 0, QTableWidgetItem(time_period.toString()))
+            for task in tasks:
+                self.tableWidget.setItem(row, 1, QTableWidgetItem(task.get_title()))
+                self.tableWidget.setItem(row, 2, QTableWidgetItem(task.get_style()))
+                self.tableWidget.setItem(row, 3, QTableWidgetItem(str(task.get_priority())))
+                self.tableWidget.setItem(row, 4, QTableWidgetItem(task.get_description()))
+                if task.get_style() != time_period.get_style():
+                    self.tableWidget.item(row, 1).setBackground(QColor(255, 255, 200))
+                    self.tableWidget.item(row, 2).setBackground(QColor(255, 255, 200))
+                    self.tableWidget.item(row, 3).setBackground(QColor(255, 255, 200))
+                    self.tableWidget.item(row, 4).setBackground(QColor(255, 255, 200))
+
+
     def schedule(self):
-        pass
+        if schedule_globals.selected_tasks == [] or schedule_globals.selected_periods == []:
+            QMessageBox.information(self, "Schedule", "Please add tasks and time periods first! Neither of them can be empty.")
+            return
+        time_period_to_tasks = {}
+        for time_period in schedule_globals.selected_periods:
+            time_period_to_tasks[time_period] = []
+        sorted_tasks = sorted(schedule_globals.selected_tasks, key=lambda task: (task.deadline, task.priority), reverse=True)
+        for task in itertools.chain(sorted_tasks):
+            time_cost = task.get_expection() * 3600
+            task_style = task.get_style()
+            while time_cost > 0:
+                flag = 0
+                for time_period in schedule_globals.selected_periods:
+                    if time_period.get_style() == task_style and time_period.get_duration() > 0 and time_period_to_tasks[time_period] == []:
+                        time_period_to_tasks[time_period].append(task)
+                        time_cost -= time_period.get_duration()
+                        flag = 1
+                        break
+                if flag == 0:
+                    break
+            if time_cost <= 0:
+                sorted_tasks.remove(task)
+
+        self.showSchedule(time_period_to_tasks)
+        if sorted_tasks == []:
+            QMessageBox.information(self, "Schedule", "Schedule successfully!")
+        else:
+            reply = QMessageBox.question(self, "Schedule", "There are still some tasks not scheduled, probably due to styles not matching. Do you want to continue scheduling anyway?",
+                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if reply == QMessageBox.No:
+                return
+            for task in itertools.chain(sorted_tasks):
+                time_cost = task.get_expection() * 3600
+                while time_cost > 0:
+                    flag = 0
+                    for time_period in schedule_globals.selected_periods:
+                        if time_period.get_duration() > 0 and time_period_to_tasks[time_period] == []:
+                            time_period_to_tasks[time_period].append(task)
+                            time_cost -= time_period.get_duration()
+                            flag = 1
+                            break
+                    if flag == 0:
+                        break
+                if time_cost <= 0:
+                    sorted_tasks.remove(task)
+            self.showSchedule(time_period_to_tasks)
+            if sorted_tasks == []:
+                QMessageBox.information(self, "Schedule", "Schedule successfully! Yellow backgrounds, if any, indicate that the style of the task does not match the style of the time period.")
+            else:
+                QMessageBox.information(self, "Schedule", "Schedule failed! Please add more time periods or delete some tasks from scheduling.")
+        
+
 
 # app = QApplication([])
 # mainWindow = Ui_Schedule()
