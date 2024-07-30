@@ -363,8 +363,10 @@ class Ui_ReadAndUpdate(QMainWindow):
             print_state = 'expired'
         self.lineEdit.setText(title)
         self.textEdit.setText(description)
-        self.dateTimeEdit.dateTimeFromText(deadline)
-        self.dateTimeEdit_2.dateTimeFromText(begin)
+        deadline_qt = QDateTime.fromString(deadline, "yyyy-MM-dd hh:mm:ss")
+        self.dateTimeEdit.setDateTime(deadline_qt)
+        begin_qt = QDateTime.fromString(begin, "yyyy-MM-dd hh:mm:ss")
+        self.dateTimeEdit_2.setDateTime(begin_qt)
         #self.comboBox.setCurrentText(print_state)
         self.comboBox_2.setCurrentText(priority)
         self.comboBox_3.setCurrentText(style)

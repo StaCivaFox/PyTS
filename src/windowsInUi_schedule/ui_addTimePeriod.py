@@ -15,9 +15,13 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QDateTimeEdit, QHBoxLayout,
-    QLabel, QMainWindow, QMenuBar, QPushButton,
-    QSizePolicy, QStatusBar, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import *
+
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+import windowsInUi_schedule.schedule_globals as schedule_globals
+from time_period import *
 
 class Ui_AddTimePeriod(QMainWindow):
     def __init__(self):
@@ -47,10 +51,12 @@ class Ui_AddTimePeriod(QMainWindow):
 
         self.horizontalLayout.addWidget(self.label)
 
-        self.dateTimeEdit = QDateTimeEdit(self.verticalLayoutWidget)
-        self.dateTimeEdit.setObjectName(u"dateTimeEdit")
+        self.timeEdit = QTimeEdit(self.verticalLayoutWidget)
+        self.timeEdit.setObjectName(u"dateTimeEdit")
+        self.timeEdit.setMinimumTime(QTime(0, 0))
+        self.timeEdit.setMaximumTime(QTime(23, 59))
 
-        self.horizontalLayout.addWidget(self.dateTimeEdit)
+        self.horizontalLayout.addWidget(self.timeEdit)
 
 
         self.verticalLayout.addLayout(self.horizontalLayout)
@@ -62,10 +68,12 @@ class Ui_AddTimePeriod(QMainWindow):
 
         self.horizontalLayout_3.addWidget(self.label_2)
 
-        self.dateTimeEdit_2 = QDateTimeEdit(self.verticalLayoutWidget)
-        self.dateTimeEdit_2.setObjectName(u"dateTimeEdit_2")
+        self.timeEdit_2 = QTimeEdit(self.verticalLayoutWidget)
+        self.timeEdit_2.setObjectName(u"dateTimeEdit_2")
+        self.timeEdit_2.setMinimumTime(QTime(0, 0))
+        self.timeEdit_2.setMaximumTime(QTime(23, 59))
 
-        self.horizontalLayout_3.addWidget(self.dateTimeEdit_2)
+        self.horizontalLayout_3.addWidget(self.timeEdit_2)
 
 
         self.verticalLayout.addLayout(self.horizontalLayout_3)
@@ -118,7 +126,7 @@ class Ui_AddTimePeriod(QMainWindow):
         self.comboBox.currentIndexChanged.connect(self.on_combobox_changed)
         self.initButton()
 
-        QMetaObject.connectSlotsByName(MainWindow)
+        #QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
 
     def retranslateUi(self, MainWindow):
@@ -149,10 +157,23 @@ class Ui_AddTimePeriod(QMainWindow):
         self.close()
 
     def add(self):
-        beginTime = self.dateTimeEdit.dateTime()
-        endTime = self.dateTimeEdit_2.dateTime()
+        beginTime = self.timeEdit.time()
+        endTime = self.timeEdit_2.time()
         style = self.comboBox.currentText()
-        pass
+        if beginTime >= endTime:
+            QMessageBox.warning(self, "Warning", "The begin time should be earlier than the end time.")
+            return
+        for time_period in schedule_globals.selected_periods:
+            if (time_period.beginTime <= beginTime and time_period.endTime >= beginTime) or (time_period.beginTime <= endTime and time_period.endTime >= endTime):
+                QMessageBox.warning(self, "Warning", "The time period conflicts with existing time periods: " + time_period.beginTime.toString() + " - " + time_period.endTime.toString())
+                return
+        new_period = TimePeriod(beginTime, endTime, style)
+        schedule_globals.selected_periods.append(new_period)
+        sorted_periods = sorted(schedule_globals.selected_periods, key=lambda x: x.beginTime)
+        schedule_globals.selected_periods = sorted_periods
+        QMessageBox.information(self, "Success", "Time period added successfully.")
+        self.close()
+
 
 # app = QApplication([])
 # mainWindow = Ui_AddTimePeriod()
